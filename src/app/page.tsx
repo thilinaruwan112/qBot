@@ -1,9 +1,9 @@
 'use client';
 
 import { useFormState } from 'react-dom';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useTransition } from 'react';
 import type { AnalyzeBettingPatternsOutput } from '@/ai/flows/analyze-betting-patterns';
-import { getBettingAnalysis } from '@/lib/actions';
+import { getBettingAnalysis, clearHistoricalData } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { AppHeader } from '@/components/dashboard/header';
 import DataInputCard from '@/components/dashboard/data-input-card';
@@ -34,6 +34,7 @@ export default function HomePage() {
 
   const [gameData, setGameData] = useState('');
   const [historicalData, setHistoricalData] = useState<string[]>([]);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     if (state.analysisResult?.extractedData) {
@@ -41,6 +42,10 @@ export default function HomePage() {
     }
     if (state.historicalData) {
       setHistoricalData(state.historicalData);
+    } else {
+      // This handles the case where the initial load has no historical data
+      // or it gets cleared.
+      setHistoricalData([]);
     }
   }, [state.analysisResult?.extractedData, state.historicalData]);
 
@@ -62,6 +67,39 @@ export default function HomePage() {
     }
   }, [state, toast]);
 
+  const handleClearHistory = () => {
+    startTransition(async () => {
+      const result = await clearHistoricalData();
+      if (result.success) {
+        setHistoricalData([]);
+        setGameData('');
+        // Reset analysis state as well
+        // A bit of a hack to reset the form state, but it works
+        (formRef.current as any)?.reset(); // clear file input
+        const emptyState: State = { ...initialState, historicalData: [] };
+        // This is tricky without a dedicated state setter from useFormState
+        // for now we just clear our local state
+        // A page reload or new analysis will sync everything correctly.
+        // To properly reset the `state` from `useFormState` is more complex.
+        // For our purpose, clearing local state is sufficient.
+        state.analysisResult = null;
+        state.message = '';
+        state.errors = null;
+
+        toast({
+          title: 'History Cleared',
+          description: 'Your betting history has been cleared.',
+        });
+      } else {
+        toast({
+          title: 'Error Clearing History',
+          description: result.message,
+          variant: 'destructive',
+        });
+      }
+    });
+  };
+
   return (
     <div className="flex min-h-screen w-full flex-col">
       <AppHeader />
@@ -77,7 +115,11 @@ export default function HomePage() {
               <ExtractedDataCard extractedData={state.analysisResult.extractedData} />
             )}
             {historicalData.length > 0 && (
-                <HistoricalDataCard historicalData={historicalData} />
+                <HistoricalDataCard 
+                  historicalData={historicalData} 
+                  onClear={handleClearHistory}
+                  isClearing={isPending}
+                />
             )}
             <CrashHistoryChart gameData={gameData} />
           </div>

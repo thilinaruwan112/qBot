@@ -112,3 +112,15 @@ export async function getBettingAnalysis(
     };
   }
 }
+
+export async function clearHistoricalData(): Promise<{ success: boolean; message: string; }> {
+    try {
+        await fs.writeFile(dataFilePath, '[]', 'utf-8');
+        gameDataCache = [];
+        return { success: true, message: 'Historical data cleared successfully.' };
+    } catch (error) {
+        console.error('Failed to clear historical data:', error);
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+        return { success: false, message: `Failed to clear data: ${errorMessage}` };
+    }
+}
