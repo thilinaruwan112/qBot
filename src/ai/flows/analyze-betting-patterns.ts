@@ -21,7 +21,7 @@ export type AnalyzeBettingPatternsInput = z.infer<typeof AnalyzeBettingPatternsI
 
 const BetSuggestionSchema = z.object({
   position: z.number().describe('The multiplier to bet on.'),
-  yield: z.number().describe('The potential yield for this bet.'),
+  yield: z.number().describe('The potential multiplier for this bet if it wins.'),
   probability: z
     .number()
     .describe(

@@ -17,8 +17,14 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
-import { BrainCircuit } from "lucide-react";
+import { BrainCircuit, Info } from "lucide-react";
 
 type AnalysisResultCardProps = {
   analysisResult: AnalyzeBettingPatternsOutput;
@@ -65,7 +71,21 @@ export default function AnalysisResultCard({
               <TableHeader>
                 <TableRow>
                   <TableHead>Position</TableHead>
-                  <TableHead>Yield</TableHead>
+                  <TableHead>
+                    <div className="flex items-center gap-1">
+                      Yield
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>The potential multiplier for your bet if you win.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                  </TableHead>
                   <TableHead>Probability</TableHead>
                   <TableHead>Risk</TableHead>
                 </TableRow>
@@ -74,7 +94,7 @@ export default function AnalysisResultCard({
                 {analysisResult.suggestedBetPositions.map((bet, index) => (
                   <TableRow key={index}>
                     <TableCell className="font-medium">{bet.position}x</TableCell>
-                    <TableCell>{bet.yield}</TableCell>
+                    <TableCell>{bet.yield}x</TableCell>
                     <TableCell>{bet.probability}%</TableCell>
                     <TableCell>
                       <Badge variant={riskVariant(bet.risk)}>{bet.risk}</Badge>
