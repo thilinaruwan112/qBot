@@ -43,19 +43,22 @@ async function updateHistoricalData(newData: string): Promise<string[]> {
     const newValues = newData.match(/[\d.]+(?=x)/g) || [];
     
     const historicalSet = new Set(historicalData);
-    let updated = false;
+    const originalSize = historicalSet.size;
 
     newValues.forEach(value => {
-        if (!historicalSet.has(value)) {
-            historicalSet.add(value);
-            updated = true;
-        }
+        historicalSet.add(value);
     });
 
-    if (updated) {
+    if (historicalSet.size > originalSize) {
         const newHistory = Array.from(historicalSet);
-        await fs.writeFile(dataFilePath, JSON.stringify(newHistory, null, 2), 'utf-8');
-        gameDataCache = newHistory; // Update cache
+        try {
+            await fs.writeFile(dataFilePath, JSON.stringify(newHistory, null, 2), 'utf-8');
+            gameDataCache = newHistory; // Update cache
+        } catch (error) {
+            console.error('Failed to write historical data:', error);
+            // Return original data if write fails
+            return historicalData;
+        }
         return newHistory;
     }
 
@@ -85,7 +88,7 @@ export async function getBettingAnalysis(
       photoDataUri: validatedFields.data.photoDataUri,
     });
     
-    // Update historical data with the new values
+    // Update historical data with the new values. This now handles de-duplication.
     const fullHistory = await updateHistoricalData(preliminaryResult.extractedData);
 
     // Now, run the analysis again with the full historical context
