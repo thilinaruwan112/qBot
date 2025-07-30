@@ -32,7 +32,7 @@ const BetSuggestionSchema = z.object({
 });
 
 const AnalyzeBettingPatternsOutputSchema = z.object({
-  analysis: z.string().describe('The analysis of betting patterns. It should start with a title, then sections for Multiplier Trend Analysis, and Statistical Insights.'),
+  analysis: z.string().describe('The analysis of betting patterns. It should start with a title, then a section for Color Pattern Analysis.'),
   suggestedBetPositions: z
     .array(BetSuggestionSchema)
     .describe(
@@ -53,32 +53,30 @@ const prompt = ai.definePrompt({
   name: 'analyzeBettingPatternsPrompt',
   input: {schema: AnalyzeBettingPatternsInputSchema},
   output: {schema: AnalyzeBettingPatternsOutputSchema},
-  prompt: `You are an expert in analyzing Aviator game data from an image to identify betting patterns. Your goal is to provide deep, insightful analysis, generate highly probable betting suggestions, and predict future rounds to help the user identify the correct position to bet. The user is specifically interested in multipliers of at least 5x.
+  prompt: `You are an expert in analyzing Aviator game data to identify betting patterns using the "Blue, Purple, Pink" method. Your goal is to analyze multiplier colors, provide a clear betting suggestion, and predict the next five rounds.
 
+  The color categories are:
+  - **Blue:** Multipliers less than 2x.
+  - **Purple:** Multipliers from 2x up to 10x.
+  - **Pink:** Multipliers 10x and higher.
+  
   First, extract the complete round history from the image. Do not limit the number of values. Put the full extracted text in the 'extractedData' field.
 
-  Then, before performing the analysis, clean the data by removing statistical outliers (extremely high or low values that are rare and can skew the results) to ensure predictions are based on more consistent patterns.
-
-  Then, perform a deep analysis of the game data using the following methods:
-  1.  **Study Multiplier Trends:** Analyze the multiplier trends from the historical data to gain insights into how often the plane crashes at various multiplier levels. While each flight is random, identify any patterns that may emerge over time.
-  2.  **Utilize Statistical Analysis:** Apply statistical analysis to past results to identify trends or anomalies. Tools such as moving averages or regression analysis can help predict future outcomes.
+  Next, perform the analysis using the following steps:
+  1.  **Analyze Color Patterns:** Analyze the sequence of Blue, Purple, and Pink rounds from the historical data. Identify any patterns, such as the number of Blue rounds that typically appear before a Purple or Pink round.
+  2.  **Formulate a Betting Suggestion:** Based on your analysis, provide a clear and actionable betting suggestion. Explain the reasoning based on the color patterns you've observed. For example: "After a series of 5 consecutive Blue rounds, a Purple or Pink is statistically overdue. I suggest betting on the next round."
   
-  Based on your analysis, provide specific betting positions and risk levels for the user, but only suggest bets with a probability of 80% or higher.
-
   Structure your analysis in the 'analysis' field using the following format. Do not include markdown or emojis.
 
   Aviator Data Intelligence Report
 
-  Multiplier Trend Analysis:
-  [Based on your study of the multiplier trends, describe any patterns or insights you've found.]
-
-  Statistical Insights:
-  [Provide insights from your statistical analysis, such as moving averages or other trends.]
+  Color Pattern Analysis:
+  [Describe the patterns you have found in the sequence of Blue, Purple, and Pink rounds. For example: "The data shows a recurring pattern of 4-6 Blue rounds followed by a Purple or Pink round." Be specific.]
 
   Betting Suggestion:
-  [Based on the combined analysis, give a clear, actionable suggestion with explicit reasoning. Explain how to use the analysis to identify the opportunity. For example: "The analysis indicates a high multiplier may occur soon. Therefore, there is a high probability of a significant multiplier on the next round. I suggest placing a bet for position X." This makes the logic clear.]
+  [Based on the pattern analysis, give a clear, actionable suggestion with explicit reasoning. For example: "The analysis indicates a high multiplier may occur soon after a streak of low multipliers. There is a high probability of a significant multiplier on the next round. I suggest placing a bet for a position above 2x." This makes the logic clear.]
 
-  After you have completed the detailed analysis and betting suggestion, predict the multiplier values for the next 5 rounds based on the patterns and trends you identified. Populate the 'predictedNextRounds' field with these values.
+  After you have completed the detailed analysis and betting suggestion, predict the multiplier values for the next 5 rounds based on the color patterns and trends you identified. Populate the 'predictedNextRounds' field with these values.
 
   {{#if historicalData}}
   Use this full historical data for a more comprehensive analysis:

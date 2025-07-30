@@ -34,8 +34,7 @@ type AnalysisResultCardProps = {
 
 type ParsedAnalysis = {
   title: string;
-  multiplierTrendAnalysis: string;
-  statisticalInsights: string;
+  colorPatternAnalysis: string;
   bettingSuggestion: string;
 };
 
@@ -63,8 +62,7 @@ export default function AnalysisResultCard({
     const findSectionIndex = (keyword: string) => lines.findIndex(line => line.toLowerCase().startsWith(keyword.toLowerCase()));
 
     const titleIndex = findSectionIndex("Aviator Data Intelligence Report");
-    const multiplierTrendIndex = findSectionIndex("Multiplier Trend Analysis");
-    const statisticalInsightsIndex = findSectionIndex("Statistical Insights");
+    const colorPatternIndex = findSectionIndex("Color Pattern Analysis");
     const bettingSuggestionIndex = findSectionIndex("Betting Suggestion");
 
     if (titleIndex === -1) return null;
@@ -79,8 +77,7 @@ export default function AnalysisResultCard({
 
     return {
       title: lines[titleIndex],
-      multiplierTrendAnalysis: getSectionContent(multiplierTrendIndex, statisticalInsightsIndex),
-      statisticalInsights: getSectionContent(statisticalInsightsIndex, bettingSuggestionIndex),
+      colorPatternAnalysis: getSectionContent(colorPatternIndex, bettingSuggestionIndex),
       bettingSuggestion: getSectionContent(bettingSuggestionIndex, -1),
     };
   }, [analysisResult.analysis]);
@@ -101,17 +98,10 @@ export default function AnalysisResultCard({
            <div className="space-y-6 text-sm">
             <h3 className="text-lg font-semibold text-foreground">{parsedAnalysis.title}</h3>
 
-            {parsedAnalysis.multiplierTrendAnalysis && (
+            {parsedAnalysis.colorPatternAnalysis && (
               <div className="space-y-2">
-                <h4 className="font-semibold">Multiplier Trend Analysis</h4>
-                <p className="text-muted-foreground whitespace-pre-wrap">{parsedAnalysis.multiplierTrendAnalysis}</p>
-              </div>
-            )}
-
-            {parsedAnalysis.statisticalInsights && (
-              <div className="space-y-2">
-                <h4 className="font-semibold">Statistical Insights</h4>
-                <p className="text-muted-foreground whitespace-pre-wrap">{parsedAnalysis.statisticalInsights}</p>
+                <h4 className="font-semibold">Color Pattern Analysis</h4>
+                <p className="text-muted-foreground whitespace-pre-wrap">{parsedAnalysis.colorPatternAnalysis}</p>
               </div>
             )}
             
