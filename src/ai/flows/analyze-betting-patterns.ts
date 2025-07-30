@@ -22,7 +22,11 @@ export type AnalyzeBettingPatternsInput = z.infer<typeof AnalyzeBettingPatternsI
 const BetSuggestionSchema = z.object({
   position: z.number().describe('The multiplier to bet on.'),
   yield: z.number().describe('The potential yield for this bet.'),
-  probability: z.number().describe('The probability of this outcome in percent.'),
+  probability: z
+    .number()
+    .describe(
+      'The probability of this outcome in percent. This should be between 80 and 99.'
+    ),
   risk: z.enum(['Low', 'Medium', 'High']).describe('The risk level associated with the bet.'),
 });
 
@@ -31,7 +35,7 @@ const AnalyzeBettingPatternsOutputSchema = z.object({
   suggestedBetPositions: z
     .array(BetSuggestionSchema)
     .describe(
-      'A list of suggested bet positions based on the analysis, including risk levels and potential yields.'
+      'A list of suggested bet positions based on the analysis, including risk levels and potential yields. Only include suggestions with a probability of 80% or higher.'
     ),
   extractedData: z.string().describe('The raw data extracted from the image for display.')
 });
@@ -47,11 +51,11 @@ const prompt = ai.definePrompt({
   name: 'analyzeBettingPatternsPrompt',
   input: {schema: AnalyzeBettingPatternsInputSchema},
   output: {schema: AnalyzeBettingPatternsOutputSchema},
-  prompt: `You are an expert in analyzing Aviator game data from an image to identify betting patterns.
+  prompt: `You are an expert in analyzing Aviator game data from an image to identify betting patterns. Your goal is to provide deep, insightful analysis and generate highly probable betting suggestions.
 
-  First, extract the round history from the image and put it in the extractedData field.
+  First, extract the complete round history from the image and put it in the extractedData field.
 
-  Then, analyze the provided image of game data to identify potential betting patterns and generate a statistical distribution of advantageous bet positions. Provide specific betting positions and risk levels for the user.
+  Then, perform a deep analysis of the provided image of game data. Identify complex patterns, calculate statistical distributions, and determine advantageous bet positions. Provide specific betting positions and risk levels for the user, but only suggest bets with a probability of 80% or higher.
 
   Structure your analysis in the 'analysis' field using the following format, including the emojis and markdown:
 
@@ -69,6 +73,7 @@ const prompt = ai.definePrompt({
   **⚠️ Current Situation:**
   - Briefly describe the most recent rounds.
   - Note how many rounds it has been since the last true high multiplier.
+  - Provide any other critical observations from your deep analysis.
 
   **✅ Betting Suggestion:**
   - Based on the patterns, give a clear, actionable suggestion.
