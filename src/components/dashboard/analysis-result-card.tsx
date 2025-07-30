@@ -34,9 +34,9 @@ type AnalysisResultCardProps = {
 
 type ParsedAnalysis = {
   title: string;
-  highMultipliers: string;
-  patternDetection: string;
-  currentSituation: string;
+  movingAverage: string;
+  frequencyDistribution: string;
+  gapAnalysis: string;
   bettingSuggestion: string;
 };
 
@@ -63,10 +63,10 @@ export default function AnalysisResultCard({
     
     const findSectionIndex = (keyword: string) => lines.findIndex(line => line.toLowerCase().startsWith(keyword.toLowerCase()));
 
-    const titleIndex = findSectionIndex("Latest Aviator");
-    const highMultipliersIndex = findSectionIndex("High Multipliers");
-    const patternDetectionIndex = findSectionIndex("Pattern Detection");
-    const currentSituationIndex = findSectionIndex("Current Situation");
+    const titleIndex = findSectionIndex("Aviator Data Intelligence Report");
+    const movingAverageIndex = findSectionIndex("Moving Average Analysis");
+    const frequencyDistributionIndex = findSectionIndex("Frequency Distribution");
+    const gapAnalysisIndex = findSectionIndex("Gap Analysis");
     const bettingSuggestionIndex = findSectionIndex("Betting Suggestion");
 
     if (titleIndex === -1) return null;
@@ -80,9 +80,9 @@ export default function AnalysisResultCard({
 
     return {
       title: lines[titleIndex],
-      highMultipliers: getSectionContent(highMultipliersIndex, patternDetectionIndex),
-      patternDetection: getSectionContent(patternDetectionIndex, currentSituationIndex),
-      currentSituation: getSectionContent(currentSituationIndex, bettingSuggestionIndex),
+      movingAverage: getSectionContent(movingAverageIndex, frequencyDistributionIndex),
+      frequencyDistribution: getSectionContent(frequencyDistributionIndex, gapAnalysisIndex),
+      gapAnalysis: getSectionContent(gapAnalysisIndex, bettingSuggestionIndex),
       bettingSuggestion: getSectionContent(bettingSuggestionIndex, -1),
     };
   }, [analysisResult.analysis]);
@@ -103,24 +103,24 @@ export default function AnalysisResultCard({
            <div className="space-y-6 text-sm">
             <h3 className="text-lg font-semibold text-foreground">{parsedAnalysis.title}</h3>
 
-            {parsedAnalysis.highMultipliers && (
+            {parsedAnalysis.movingAverage && (
               <div className="space-y-2">
-                <h4 className="font-semibold">High Multipliers (Recent)</h4>
-                <p className="text-muted-foreground">{parsedAnalysis.highMultipliers}</p>
+                <h4 className="font-semibold">Moving Average Analysis (Last 5 Rounds)</h4>
+                <p className="text-muted-foreground whitespace-pre-wrap">{parsedAnalysis.movingAverage}</p>
               </div>
             )}
             
-            {parsedAnalysis.patternDetection && (
+            {parsedAnalysis.frequencyDistribution && (
               <div className="space-y-2">
-                <h4 className="font-semibold">Pattern Detection (Recent High Gaps)</h4>
-                <pre className="text-muted-foreground text-xs whitespace-pre-wrap font-mono bg-muted p-2 rounded-md">{parsedAnalysis.patternDetection}</pre>
+                <h4 className="font-semibold">Frequency Distribution</h4>
+                <p className="text-muted-foreground whitespace-pre-wrap">{parsedAnalysis.frequencyDistribution}</p>
               </div>
             )}
             
-            {parsedAnalysis.currentSituation && (
+            {parsedAnalysis.gapAnalysis && (
               <div className="space-y-2">
-                <h4 className="font-semibold">Current Situation</h4>
-                <p className="text-muted-foreground whitespace-pre-wrap">{parsedAnalysis.currentSituation}</p>
+                <h4 className="font-semibold">Gap Analysis</h4>
+                <p className="text-muted-foreground whitespace-pre-wrap">{parsedAnalysis.gapAnalysis}</p>
               </div>
             )}
             

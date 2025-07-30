@@ -55,30 +55,28 @@ const prompt = ai.definePrompt({
 
   First, extract the complete round history from the image and put it in the extractedData field.
 
-  Then, perform a deep analysis of the provided image of game data. Identify complex patterns, calculate statistical distributions, and determine advantageous bet positions. Provide specific betting positions and risk levels for the user, but only suggest bets with a probability of 80% or higher.
+  Then, perform a deep analysis of the provided image of game data using the following methods:
+  1.  **Moving Average Analysis:** Smooth out short-term fluctuations to identify streaks of low or high multipliers. Calculate the average multiplier of the last 5 rounds. If it’s low (<2x), state that you expect a high one soon.
+  2.  **Frequency Distribution:** Track how often certain multiplier ranges occur. State the probability of getting ≤2x, 2–10x, and ≥10x based on the data.
+  3.  **Gap Analysis:** Measure the number of low rounds before each high round. Use this to predict when the next high multiplier might appear.
+
+  Provide specific betting positions and risk levels for the user, but only suggest bets with a probability of 80% or higher.
 
   Structure your analysis in the 'analysis' field using the following format. Do not include markdown or emojis.
 
-  Latest Aviator Round History Analysis
-  High Multipliers (Recent):
-  List the recent high multipliers (e.g., >10x) you've identified.
+  Aviator Data Intelligence Report
 
-  Pattern Detection (Recent High Gaps):
-  Show recent streaks of low/medium multipliers that were followed by a high multiplier. For example:
-  Low/Medium Streak -> High Multiplier After
-  1.62x -> 2.62x -> 2.73x -> 11.04x
-  ...
-  NOW: [current streak] -> ???
+  Moving Average Analysis (Last 5 Rounds):
+  [Your analysis of the moving average and what it indicates]
 
-  Current Situation:
-  - Briefly describe the most recent rounds.
-  - Note how many rounds it has been since the last true high multiplier.
-  - Provide any other critical observations from your deep analysis.
+  Frequency Distribution:
+  [Your analysis of multiplier frequencies (≤2x, 2-10x, ≥10x) and what it implies]
+
+  Gap Analysis:
+  [Your analysis of the gaps between high multipliers and what it predicts]
 
   Betting Suggestion:
-  - Based on the patterns, give a clear, actionable suggestion.
-  - For example: "If next round is low (under 2x), prepare to bet in the 2nd or 3rd round for a 10x+ cashout."
-  - Explain the reasoning based on past patterns (e.g., "Past pattern shows high multipliers come every ~6-8 low/medium rounds.")
+  [Based on the combined analysis, give a clear, actionable suggestion with reasoning.]
 
   Image: {{media url=photoDataUri}}`,
 });
