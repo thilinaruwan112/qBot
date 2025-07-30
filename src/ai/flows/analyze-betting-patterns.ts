@@ -51,7 +51,7 @@ const prompt = ai.definePrompt({
   name: 'analyzeBettingPatternsPrompt',
   input: {schema: AnalyzeBettingPatternsInputSchema},
   output: {schema: AnalyzeBettingPatternsOutputSchema},
-  prompt: `You are an expert in analyzing Aviator game data from an image to identify betting patterns. Your goal is to provide deep, insightful analysis and generate highly probable betting suggestions.
+  prompt: `You are an expert in analyzing Aviator game data from an image to identify betting patterns. Your goal is to provide deep, insightful analysis and generate highly probable betting suggestions to help the user identify the correct position to bet.
 
   First, extract the complete round history from the image and put it in the extractedData field.
 
@@ -76,7 +76,7 @@ const prompt = ai.definePrompt({
   [Your analysis of the gaps between high multipliers and what it predicts]
 
   Betting Suggestion:
-  [Based on the combined analysis, give a clear, actionable suggestion with reasoning.]
+  [Based on the combined analysis, give a clear, actionable suggestion with explicit reasoning. Explain how to use the analysis to identify the opportunity. For example: "The Gap Analysis indicates a high multiplier occurs after about 5 low rounds. We are currently on the 4th low round. Therefore, there is a high probability of a significant multiplier on the next round. I suggest placing a bet for position X." This makes the logic clear.]
 
   Image: {{media url=photoDataUri}}`,
 });
