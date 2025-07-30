@@ -32,14 +32,13 @@ const BetSuggestionSchema = z.object({
 });
 
 const AnalyzeBettingPatternsOutputSchema = z.object({
-  analysis: z.string().describe('The analysis of betting patterns. It should start with a title, then a section for Color Pattern Analysis.'),
+  analysis: z.string().describe('The analysis of betting patterns. It should start with a title, then a section for Color Pattern Analysis, and finally a Betting Suggestion section.'),
   suggestedBetPositions: z
     .array(BetSuggestionSchema)
     .describe(
       'A list of suggested bet positions based on the analysis, including risk levels and potential yields. Only include suggestions with a probability of 80% or higher and a multiplier of at least 5x.'
     ),
   extractedData: z.string().describe('The raw data extracted from the image for display. Provide all available values, not just a limited set.'),
-  predictedNextRounds: z.array(z.number()).optional().describe('An array of predicted multiplier values for the next 5 rounds.')
 });
 export type AnalyzeBettingPatternsOutput = z.infer<typeof AnalyzeBettingPatternsOutputSchema>;
 
@@ -53,7 +52,7 @@ const prompt = ai.definePrompt({
   name: 'analyzeBettingPatternsPrompt',
   input: {schema: AnalyzeBettingPatternsInputSchema},
   output: {schema: AnalyzeBettingPatternsOutputSchema},
-  prompt: `You are an expert in analyzing Aviator game data to identify betting patterns using the "Blue, Purple, Pink" method. Your goal is to analyze multiplier colors, provide a clear betting suggestion, and predict the next five rounds.
+  prompt: `You are an expert in analyzing Aviator game data to identify betting patterns using the "Blue, Purple, Pink" method. Your goal is to analyze multiplier colors and provide a clear betting suggestion.
 
   The color categories are:
   - **Blue:** Multipliers less than or equal to 2x.
@@ -75,8 +74,6 @@ const prompt = ai.definePrompt({
 
   Betting Suggestion:
   [Based on the pattern analysis and the current sequence, give a clear, actionable suggestion with explicit reasoning. For example: "The last Pink multiplier was 7 rounds ago, and there has been a streak of 6 blue/purple rounds. According to the strategy, a high multiplier may be due. I suggest placing a bet for a position above 10x on an upcoming round." This makes the logic clear.]
-
-  After you have completed the detailed analysis and betting suggestion, predict the multiplier values for the next 5 rounds based on the color patterns and trends you identified. Populate the 'predictedNextRounds' field with these values.
 
   Finally, populate the 'suggestedBetPositions' field. Focus on suggestions with a multiplier of at least 5x and a high probability (80% or more) based on your analysis.
 

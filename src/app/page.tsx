@@ -11,7 +11,6 @@ import AnalysisResultCard from '@/components/dashboard/analysis-result-card';
 import CrashHistoryChart from '@/components/dashboard/crash-history-chart';
 import ExtractedDataCard from '@/components/dashboard/extracted-data-card';
 import HistoricalDataCard from '@/components/dashboard/historical-data-card';
-import PredictionsCard from '@/components/dashboard/predictions-card';
 
 type State = {
   message: string;
@@ -126,9 +125,6 @@ export default function HomePage() {
           <div className="flex flex-col gap-4">
             {state.analysisResult && (
                 <AnalysisResultCard analysisResult={state.analysisResult} />
-            )}
-            {state.analysisResult?.predictedNextRounds && (
-              <PredictionsCard predictions={state.analysisResult.predictedNextRounds} />
             )}
           </div>
         </div>

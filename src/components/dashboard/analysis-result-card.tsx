@@ -61,29 +61,53 @@ export default function AnalysisResultCard({
     
     const findSectionIndex = (keyword: string) => lines.findIndex(line => line.toLowerCase().startsWith(keyword.toLowerCase()));
 
-    const titleIndex = findSectionIndex("Aviator Data Intelligence Report");
+    let titleIndex = findSectionIndex("Aviator Data Intelligence Report");
+    
+    // Fallback for title if the main one isn't found
+    if (titleIndex === -1) {
+       titleIndex = 0; // Assume first line is title if specific title not found
+    }
+
     const colorPatternIndex = findSectionIndex("Color Pattern Analysis");
     const bettingSuggestionIndex = findSectionIndex("Betting Suggestion");
 
-    if (titleIndex === -1) return null;
     
     const getSectionContent = (startIndex: number, endIndex: number) => {
         if (startIndex === -1) return '';
-        const contentLines = lines.slice(startIndex, endIndex === -1 ? undefined : endIndex);
-        // Remove the title line itself from the content
-        contentLines.shift();
+        // Determine the slice end, considering if the next section exists
+        const sliceEnd = endIndex !== -1 ? endIndex : undefined;
+        let contentLines = lines.slice(startIndex, sliceEnd);
+        
+        // Remove the title line itself from the content, if it exists
+        if (contentLines.length > 0 && contentLines[0].toLowerCase().startsWith(lines[startIndex].toLowerCase().split(':')[0])) {
+            contentLines.shift();
+        }
+        
         return contentLines.join('\n').trim();
     };
 
+    const title = lines[titleIndex] || "AI Analysis Report";
+    const colorPatternAnalysis = getSectionContent(colorPatternIndex, bettingSuggestionIndex);
+    const bettingSuggestion = getSectionContent(bettingSuggestionIndex, -1); // -1 means to the end
+
+    // If parsing fails to find specific sections, show the whole text.
+    if (!colorPatternAnalysis && !bettingSuggestion) {
+      return {
+        title: "AI Analysis Report",
+        colorPatternAnalysis: analysisResult.analysis,
+        bettingSuggestion: "",
+      }
+    }
+
     return {
-      title: lines[titleIndex],
-      colorPatternAnalysis: getSectionContent(colorPatternIndex, bettingSuggestionIndex),
-      bettingSuggestion: getSectionContent(bettingSuggestionIndex, -1),
+      title,
+      colorPatternAnalysis,
+      bettingSuggestion,
     };
   }, [analysisResult.analysis]);
 
   return (
-    <Card>
+    <Card className="flex flex-col h-full">
       <CardHeader>
         <div className="flex items-center gap-2">
           <BrainCircuit className="h-6 w-6 text-primary" />
@@ -93,22 +117,22 @@ export default function AnalysisResultCard({
           Insights generated from your game data.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 flex-grow">
         {parsedAnalysis ? (
            <div className="space-y-6 text-sm">
             <h3 className="text-lg font-semibold text-foreground">{parsedAnalysis.title}</h3>
 
             {parsedAnalysis.colorPatternAnalysis && (
               <div className="space-y-2">
-                <h4 className="font-semibold">Color Pattern Analysis</h4>
-                <p className="text-muted-foreground whitespace-pre-wrap">{parsedAnalysis.colorPatternAnalysis}</p>
+                <h4 className="font-semibold text-base">Color Pattern Analysis</h4>
+                <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{parsedAnalysis.colorPatternAnalysis}</p>
               </div>
             )}
             
             {parsedAnalysis.bettingSuggestion && (
               <div className="space-y-2">
-                <h4 className="font-semibold">Betting Suggestion</h4>
-                <p className="text-muted-foreground whitespace-pre-wrap">{parsedAnalysis.bettingSuggestion}</p>
+                <h4 className="font-semibold text-base">Betting Suggestion</h4>
+                <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{parsedAnalysis.bettingSuggestion}</p>
               </div>
             )}
           </div>
@@ -124,7 +148,7 @@ export default function AnalysisResultCard({
         <Separator />
         
         <div>
-          <h3 className="font-semibold mb-2">Suggested Bet Positions</h3>
+          <h3 className="font-semibold mb-2 text-base">Suggested Bet Positions</h3>
           {Array.isArray(analysisResult.suggestedBetPositions) &&
           analysisResult.suggestedBetPositions.length > 0 ? (
             <Table>
