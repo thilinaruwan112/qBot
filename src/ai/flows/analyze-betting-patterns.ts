@@ -51,7 +51,7 @@ const prompt = ai.definePrompt({
   name: 'analyzeBettingPatternsPrompt',
   input: {schema: AnalyzeBettingPatternsInputSchema},
   output: {schema: AnalyzeBettingPatternsOutputSchema},
-  prompt: `You are an expert in analyzing Aviator game data from an image to identify betting patterns. Your goal is to provide deep, insightful analysis and generate highly probable betting suggestions to help the user identify the correct position to bet.
+  prompt: `You are an expert in analyzing Aviator game data from an image to identify betting patterns. Your goal is to provide deep, insightful analysis and generate highly probable betting suggestions to help the user identify the correct position to bet. The user is specifically interested in multipliers of at least 5x.
 
   First, extract the complete round history from the image and put it in the extractedData field.
 
