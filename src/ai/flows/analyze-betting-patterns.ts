@@ -49,7 +49,31 @@ const prompt = ai.definePrompt({
   output: {schema: AnalyzeBettingPatternsOutputSchema},
   prompt: `You are an expert in analyzing Aviator game data from an image to identify betting patterns.
 
-  Analyze the provided image of game data to identify potential betting patterns and generate a statistical distribution of advantageous bet positions. Provide specific betting positions and risk levels for the user. First, extract the round history from the image and put it in the extractedData field.
+  First, extract the round history from the image and put it in the extractedData field.
+
+  Then, analyze the provided image of game data to identify potential betting patterns and generate a statistical distribution of advantageous bet positions. Provide specific betting positions and risk levels for the user.
+
+  Structure your analysis in the 'analysis' field using the following format, including the emojis and markdown:
+
+  ### 🔎 Latest Aviator Round History Analysis
+  **🟣 High Multipliers (Recent):**
+  List the recent high multipliers (e.g., >10x) you've identified.
+
+  **🔥 Pattern Detection (Recent High Gaps):**
+  Show recent streaks of low/medium multipliers that were followed by a high multiplier. For example:
+  Low/Medium Streak → High Multiplier After
+  1.62x → 2.62x → 2.73x → 11.04x
+  ...
+  NOW: [current streak] → ???
+
+  **⚠️ Current Situation:**
+  - Briefly describe the most recent rounds.
+  - Note how many rounds it has been since the last true high multiplier.
+
+  **✅ Betting Suggestion:**
+  - Based on the patterns, give a clear, actionable suggestion.
+  - For example: "If next round is low (under 2x), prepare to bet in the 2nd or 3rd round for a 10x+ cashout."
+  - Explain the reasoning based on past patterns (e.g., "Past pattern shows high multipliers come every ~6-8 low/medium rounds.")
 
   Image: {{media url=photoDataUri}}`,
 });
