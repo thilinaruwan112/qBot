@@ -63,7 +63,7 @@ const prompt = ai.definePrompt({
 
   Next, perform the analysis using the following steps:
   1.  **Analyze Color Patterns:** Analyze the sequence of Blue, Purple, and Pink rounds from the historical data. Observe how many Blue/Purple rounds tend to appear between Pink rounds.
-  2.  **Formulate a Betting Suggestion:** Based on your analysis, provide a clear and actionable betting suggestion. Your strategy should be: "Watch for gaps of 5-8 rounds after a pink multiplier. After seeing 4-6 blue/purple multipliers in a row, place a modest bet aiming for 10x or higher."
+  2.  **Formulate a Betting Suggestion:** Based on your analysis, provide a clear and actionable betting suggestion. Your strategy is: "Watch for gaps of 5-8 rounds after a pink multiplier. After seeing 4-6 blue/purple multipliers in a row, place a modest bet aiming for 10x or higher."
   
   Structure your analysis in the 'analysis' field using the following format. Do not include markdown or emojis.
 
@@ -77,7 +77,10 @@ const prompt = ai.definePrompt({
 
   Then, populate the 'suggestedBetPositions' field. Focus on suggestions with a multiplier of at least 5x and a high probability (80% or more) based on your analysis.
 
-  Finally, based on your analysis, predict the multiplier values for the next 10 rounds and add them to the 'predictions' field.
+  Finally, based *strictly* on your color pattern analysis and the provided betting strategy, predict the multiplier values for the next 10 rounds and add them to the 'predictions' field.
+  - If your analysis suggests a Pink round is due, one of your predictions should be a Pink value (e.g., 10.5x, 12.0x).
+  - The other predictions should be a mix of Blue and Purple values (e.g., 1.25x, 1.8x, 2.5x, 4.0x) that reflect a typical distribution.
+  - **DO NOT INVENT RANDOM HIGH VALUES.** Your predictions must be a logical extension of your analysis. If the conditions for a Pink round are not met, do not predict one.
 
   Use this image for the most recent data:
   Image: {{media url=photoDataUri}}`,
