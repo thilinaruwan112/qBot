@@ -36,7 +36,7 @@ const AnalyzeBettingPatternsOutputSchema = z.object({
   suggestedBetPositions: z
     .array(BetSuggestionSchema)
     .describe(
-      'A list of suggested bet positions based on the analysis, including risk levels and potential yields. Only include suggestions with a probability of 80% or higher.'
+      'A list of suggested bet positions based on the analysis, including risk levels and potential yields. Only include suggestions with a probability of 80% or higher and a multiplier of at least 5x.'
     ),
   extractedData: z.string().describe('The raw data extracted from the image for display. Provide all available values, not just a limited set.'),
   predictedNextRounds: z.array(z.number()).optional().describe('An array of predicted multiplier values for the next 5 rounds.')
@@ -56,27 +56,29 @@ const prompt = ai.definePrompt({
   prompt: `You are an expert in analyzing Aviator game data to identify betting patterns using the "Blue, Purple, Pink" method. Your goal is to analyze multiplier colors, provide a clear betting suggestion, and predict the next five rounds.
 
   The color categories are:
-  - **Blue:** Multipliers less than 2x.
+  - **Blue:** Multipliers less than or equal to 2x.
   - **Purple:** Multipliers from 2x up to 10x.
-  - **Pink:** Multipliers 10x and higher.
+  - **Pink:** Multipliers greater than 10x.
   
   First, extract the complete round history from the image. Do not limit the number of values. Put the full extracted text in the 'extractedData' field.
 
   Next, perform the analysis using the following steps:
-  1.  **Analyze Color Patterns:** Analyze the sequence of Blue, Purple, and Pink rounds from the historical data. Identify any patterns, such as the number of Blue rounds that typically appear before a Purple or Pink round.
-  2.  **Formulate a Betting Suggestion:** Based on your analysis, provide a clear and actionable betting suggestion. Explain the reasoning based on the color patterns you've observed. For example: "After a series of 5 consecutive Blue rounds, a Purple or Pink is statistically overdue. I suggest betting on the next round."
+  1.  **Analyze Color Patterns:** Analyze the sequence of Blue, Purple, and Pink rounds from the historical data. Observe how many Blue/Purple rounds tend to appear between Pink rounds.
+  2.  **Formulate a Betting Suggestion:** Based on your analysis, provide a clear and actionable betting suggestion. Your strategy should be: "Watch for gaps of 5-8 rounds after a pink multiplier. After seeing 4-6 blue/purple multipliers in a row, place a modest bet aiming for 10x or higher."
   
   Structure your analysis in the 'analysis' field using the following format. Do not include markdown or emojis.
 
   Aviator Data Intelligence Report
 
   Color Pattern Analysis:
-  [Describe the patterns you have found in the sequence of Blue, Purple, and Pink rounds. For example: "The data shows a recurring pattern of 4-6 Blue rounds followed by a Purple or Pink round." Be specific.]
+  [Describe the patterns you have found in the sequence of Blue, Purple, and Pink rounds. For example: "The data shows a recurring pattern of 5-8 blue/purple rounds followed by a Pink round." Be specific about your observation from the provided data.]
 
   Betting Suggestion:
-  [Based on the pattern analysis, give a clear, actionable suggestion with explicit reasoning. For example: "The analysis indicates a high multiplier may occur soon after a streak of low multipliers. There is a high probability of a significant multiplier on the next round. I suggest placing a bet for a position above 2x." This makes the logic clear.]
+  [Based on the pattern analysis and the current sequence, give a clear, actionable suggestion with explicit reasoning. For example: "The last Pink multiplier was 7 rounds ago, and there has been a streak of 6 blue/purple rounds. According to the strategy, a high multiplier may be due. I suggest placing a bet for a position above 10x on an upcoming round." This makes the logic clear.]
 
   After you have completed the detailed analysis and betting suggestion, predict the multiplier values for the next 5 rounds based on the color patterns and trends you identified. Populate the 'predictedNextRounds' field with these values.
+
+  Finally, populate the 'suggestedBetPositions' field. Focus on suggestions with a multiplier of at least 5x and a high probability (80% or more) based on your analysis.
 
   {{#if historicalData}}
   Use this full historical data for a more comprehensive analysis:
