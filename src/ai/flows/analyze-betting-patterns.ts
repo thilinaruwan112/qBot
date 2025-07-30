@@ -19,12 +19,19 @@ const AnalyzeBettingPatternsInputSchema = z.object({
 });
 export type AnalyzeBettingPatternsInput = z.infer<typeof AnalyzeBettingPatternsInputSchema>;
 
+const BetSuggestionSchema = z.object({
+  position: z.number().describe('The multiplier to bet on.'),
+  yield: z.number().describe('The potential yield for this bet.'),
+  probability: z.number().describe('The probability of this outcome in percent.'),
+  risk: z.enum(['Low', 'Medium', 'High']).describe('The risk level associated with the bet.'),
+});
+
 const AnalyzeBettingPatternsOutputSchema = z.object({
   analysis: z.string().describe('The analysis of betting patterns.'),
   suggestedBetPositions: z
-    .string()
+    .array(BetSuggestionSchema)
     .describe(
-      'Suggested bet positions based on the analysis, including risk levels and potential yields.'
+      'A list of suggested bet positions based on the analysis, including risk levels and potential yields.'
     ),
   extractedData: z.string().describe('The raw data extracted from the image for display.')
 });
