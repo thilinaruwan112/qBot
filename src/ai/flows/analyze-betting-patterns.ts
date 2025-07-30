@@ -16,6 +16,7 @@ const AnalyzeBettingPatternsInputSchema = z.object({
     .describe(
       "A photo of the game data, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
+    historicalData: z.string().optional().describe('A string of historical game data to use for a more comprehensive analysis.')
 });
 export type AnalyzeBettingPatternsInput = z.infer<typeof AnalyzeBettingPatternsInputSchema>;
 
@@ -31,13 +32,13 @@ const BetSuggestionSchema = z.object({
 });
 
 const AnalyzeBettingPatternsOutputSchema = z.object({
-  analysis: z.string().describe('The analysis of betting patterns. It should start with a title, then sections for Multiplier Trend Analysis, Statistical Insights, and Betting Suggestion.'),
+  analysis: z.string().describe('The analysis of betting patterns. It should start with a title, then sections for Multiplier Trend Analysis, and Statistical Insights.'),
   suggestedBetPositions: z
     .array(BetSuggestionSchema)
     .describe(
       'A list of suggested bet positions based on the analysis, including risk levels and potential yields. Only include suggestions with a probability of 80% or higher.'
     ),
-  extractedData: z.string().describe('The raw data extracted from the image for display.')
+  extractedData: z.string().describe('The raw data extracted from the image for display. Provide all available values, not just a limited set.')
 });
 export type AnalyzeBettingPatternsOutput = z.infer<typeof AnalyzeBettingPatternsOutputSchema>;
 
@@ -53,11 +54,15 @@ const prompt = ai.definePrompt({
   output: {schema: AnalyzeBettingPatternsOutputSchema},
   prompt: `You are an expert in analyzing Aviator game data from an image to identify betting patterns. Your goal is to provide deep, insightful analysis and generate highly probable betting suggestions to help the user identify the correct position to bet. The user is specifically interested in multipliers of at least 5x.
 
-  First, extract the complete round history from the image and put it in the extractedData field.
+  First, extract the complete round history from the image. Do not limit the number of values. Put the full extracted text in the 'extractedData' field.
+
+  Then, before performing the analysis, clean the data by removing statistical outliers (extremely high or low values that are rare and can skew the results) to ensure predictions are based on more consistent patterns.
 
   Then, perform a deep analysis of the game data using the following methods:
   1.  **Study Multiplier Trends:** Analyze the multiplier trends from the historical data to gain insights into how often the plane crashes at various multiplier levels. While each flight is random, identify any patterns that may emerge over time.
   2.  **Utilize Statistical Analysis:** Apply statistical analysis to past results to identify trends or anomalies. Tools such as moving averages or regression analysis can help predict future outcomes.
+  3.  **Pattern Detection:** Look for recurring sequences and trends in the game data.
+  4.  **ECDF Analysis:** Identify profitable betting points 'x' where the probability of the game ending before 'x' is less than 1 - 1/x based on the historical data.
 
   Provide specific betting positions and risk levels for the user, but only suggest bets with a probability of 80% or higher.
 
@@ -70,10 +75,22 @@ const prompt = ai.definePrompt({
 
   Statistical Insights:
   [Provide insights from your statistical analysis, such as moving averages or other trends.]
+  
+  Pattern Detection:
+  [Describe any recurring sequences or notable patterns identified in the data.]
+
+  Profitability Analysis (ECDF Method):
+  [Present the results of the ECDF analysis, highlighting any potentially profitable betting positions.]
 
   Betting Suggestion:
   [Based on the combined analysis, give a clear, actionable suggestion with explicit reasoning. Explain how to use the analysis to identify the opportunity. For example: "The analysis indicates a high multiplier may occur soon. Therefore, there is a high probability of a significant multiplier on the next round. I suggest placing a bet for position X." This makes the logic clear.]
 
+  {{#if historicalData}}
+  Use this full historical data for a more comprehensive analysis:
+  {{{historicalData}}}
+  {{/if}}
+
+  Use this image for the most recent data:
   Image: {{media url=photoDataUri}}`,
 });
 
