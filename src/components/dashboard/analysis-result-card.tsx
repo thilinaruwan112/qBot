@@ -34,6 +34,7 @@ type AnalysisResultCardProps = {
 
 type ParsedAnalysis = {
   title: string;
+  profitabilityAnalysis: string;
   movingAverage: string;
   frequencyDistribution: string;
   gapAnalysis: string;
@@ -65,6 +66,7 @@ export default function AnalysisResultCard({
     const findSectionIndex = (keyword: string) => lines.findIndex(line => line.toLowerCase().startsWith(keyword.toLowerCase()));
 
     const titleIndex = findSectionIndex("Aviator Data Intelligence Report");
+    const profitabilityAnalysisIndex = findSectionIndex("Profitability Analysis");
     const movingAverageIndex = findSectionIndex("Moving Average Analysis");
     const frequencyDistributionIndex = findSectionIndex("Frequency Distribution");
     const gapAnalysisIndex = findSectionIndex("Gap Analysis");
@@ -76,13 +78,14 @@ export default function AnalysisResultCard({
     const getSectionContent = (startIndex: number, endIndex: number) => {
         if (startIndex === -1) return '';
         const contentLines = lines.slice(startIndex, endIndex === -1 ? undefined : endIndex);
-        const titleLine = contentLines.shift() || '';
-        const title = titleLine.substring(titleLine.indexOf(':') + 1).trim();
-        return title ? title + '\n' + contentLines.join('\n').trim() : contentLines.join('\n').trim();
+        // Remove the title line itself from the content
+        contentLines.shift();
+        return contentLines.join('\n').trim();
     };
 
     return {
       title: lines[titleIndex],
+      profitabilityAnalysis: getSectionContent(profitabilityAnalysisIndex, movingAverageIndex),
       movingAverage: getSectionContent(movingAverageIndex, frequencyDistributionIndex),
       frequencyDistribution: getSectionContent(frequencyDistributionIndex, gapAnalysisIndex),
       gapAnalysis: getSectionContent(gapAnalysisIndex, patternDetectionIndex),
@@ -106,6 +109,13 @@ export default function AnalysisResultCard({
         {parsedAnalysis ? (
            <div className="space-y-6 text-sm">
             <h3 className="text-lg font-semibold text-foreground">{parsedAnalysis.title}</h3>
+
+            {parsedAnalysis.profitabilityAnalysis && (
+              <div className="space-y-2">
+                <h4 className="font-semibold">Profitability Analysis (ECDF Method)</h4>
+                <p className="text-muted-foreground whitespace-pre-wrap">{parsedAnalysis.profitabilityAnalysis}</p>
+              </div>
+            )}
 
             {parsedAnalysis.movingAverage && (
               <div className="space-y-2">
