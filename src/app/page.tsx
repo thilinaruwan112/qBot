@@ -8,7 +8,6 @@ import { useToast } from '@/hooks/use-toast';
 import { AppHeader } from '@/components/dashboard/header';
 import DataInputCard from '@/components/dashboard/data-input-card';
 import AnalysisResultCard from '@/components/dashboard/analysis-result-card';
-import BetVisualizerCard from '@/components/dashboard/bet-visualizer-card';
 import GameEventsCard from '@/components/dashboard/game-events-card';
 import SettingsCard from '@/components/dashboard/settings-card';
 
@@ -71,7 +70,6 @@ export default function HomePage() {
             )}
           </div>
           <div className="lg:col-span-2 flex flex-col gap-4">
-             <BetVisualizerCard />
              <div className="grid gap-4 md:grid-cols-2">
                 <GameEventsCard gameData={gameData} />
                 <SettingsCard gameData={gameData} />
