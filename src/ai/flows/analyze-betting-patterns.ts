@@ -55,7 +55,9 @@ const prompt = ai.definePrompt({
 
   First, extract the complete round history from the image and put it in the extractedData field.
 
-  Then, perform a deep analysis of the provided image of game data using the following methods:
+  Then, before performing the main analysis, clean the data by removing any extreme statistical outliers that could skew the results. These are typically unusually high multipliers that are rare anomalies.
+
+  Perform a deep analysis of the cleaned game data using the following methods:
   1.  **Moving Average Analysis:** Smooth out short-term fluctuations to identify streaks of low or high multipliers. Calculate the average multiplier of the last 5 rounds. If it’s low (<2x), state that you expect a high one soon.
   2.  **Frequency Distribution:** Track how often certain multiplier ranges occur. State the probability of getting ≤2x, 2–10x, and ≥10x based on the data.
   3.  **Gap Analysis:** Measure the number of low rounds before each high round. Use this to predict when the next high multiplier might appear.
