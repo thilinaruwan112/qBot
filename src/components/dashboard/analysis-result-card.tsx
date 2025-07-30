@@ -34,7 +34,7 @@ type AnalysisResultCardProps = {
 
 type ParsedAnalysis = {
   title: string;
-  colorPatternAnalysis: string;
+  trendAnalysis: string;
   bettingSuggestion: string;
 };
 
@@ -63,22 +63,19 @@ export default function AnalysisResultCard({
 
     let titleIndex = findSectionIndex("Aviator Data Intelligence Report");
     
-    // Fallback for title if the main one isn't found
     if (titleIndex === -1) {
-       titleIndex = 0; // Assume first line is title if specific title not found
+       titleIndex = 0;
     }
 
-    const colorPatternIndex = findSectionIndex("Color Pattern Analysis");
+    const trendAnalysisIndex = findSectionIndex("Trend Analysis");
     const bettingSuggestionIndex = findSectionIndex("Betting Suggestion");
 
     
     const getSectionContent = (startIndex: number, endIndex: number) => {
         if (startIndex === -1) return '';
-        // Determine the slice end, considering if the next section exists
         const sliceEnd = endIndex !== -1 ? endIndex : undefined;
         let contentLines = lines.slice(startIndex, sliceEnd);
         
-        // Remove the title line itself from the content, if it exists
         if (contentLines.length > 0 && contentLines[0].toLowerCase().startsWith(lines[startIndex].toLowerCase().split(':')[0])) {
             contentLines.shift();
         }
@@ -87,21 +84,20 @@ export default function AnalysisResultCard({
     };
 
     const title = lines[titleIndex] || "AI Analysis Report";
-    const colorPatternAnalysis = getSectionContent(colorPatternIndex, bettingSuggestionIndex);
-    const bettingSuggestion = getSectionContent(bettingSuggestionIndex, -1); // -1 means to the end
+    const trendAnalysis = getSectionContent(trendAnalysisIndex, bettingSuggestionIndex);
+    const bettingSuggestion = getSectionContent(bettingSuggestionIndex, -1);
 
-    // If parsing fails to find specific sections, show the whole text.
-    if (!colorPatternAnalysis && !bettingSuggestion) {
+    if (!trendAnalysis && !bettingSuggestion) {
       return {
         title: "AI Analysis Report",
-        colorPatternAnalysis: analysisResult.analysis,
+        trendAnalysis: analysisResult.analysis,
         bettingSuggestion: "",
       }
     }
 
     return {
       title,
-      colorPatternAnalysis,
+      trendAnalysis,
       bettingSuggestion,
     };
   }, [analysisResult.analysis]);
@@ -122,10 +118,10 @@ export default function AnalysisResultCard({
            <div className="space-y-6 text-sm">
             <h3 className="text-lg font-semibold text-foreground">{parsedAnalysis.title}</h3>
 
-            {parsedAnalysis.colorPatternAnalysis && (
+            {parsedAnalysis.trendAnalysis && (
               <div className="space-y-2">
-                <h4 className="font-semibold text-base">Color Pattern Analysis</h4>
-                <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{parsedAnalysis.colorPatternAnalysis}</p>
+                <h4 className="font-semibold text-base">Trend Analysis</h4>
+                <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{parsedAnalysis.trendAnalysis}</p>
               </div>
             )}
             

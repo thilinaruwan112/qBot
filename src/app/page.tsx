@@ -8,7 +8,6 @@ import { useToast } from '@/hooks/use-toast';
 import { AppHeader } from '@/components/dashboard/header';
 import DataInputCard from '@/components/dashboard/data-input-card';
 import AnalysisResultCard from '@/components/dashboard/analysis-result-card';
-import CrashHistoryChart from '@/components/dashboard/crash-history-chart';
 import ExtractedDataCard from '@/components/dashboard/extracted-data-card';
 import PredictionsCard from '@/components/dashboard/predictions-card';
 
@@ -28,14 +27,6 @@ export default function HomePage() {
   const [state, formAction] = useFormState(getBettingAnalysis, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
-
-  const [gameData, setGameData] = useState('');
-
-  useEffect(() => {
-    if (state.analysisResult?.extractedData) {
-      setGameData(state.analysisResult.extractedData);
-    }
-  }, [state.analysisResult?.extractedData]);
 
   useEffect(() => {
     if (state.message === 'Success' && state.analysisResult) {
@@ -70,7 +61,6 @@ export default function HomePage() {
              {state.analysisResult && (
               <ExtractedDataCard extractedData={state.analysisResult.extractedData} />
             )}
-            <CrashHistoryChart gameData={gameData} />
           </div>
           <div className="flex flex-col gap-4">
             {state.analysisResult && (
