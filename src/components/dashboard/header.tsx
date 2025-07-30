@@ -1,6 +1,7 @@
 "use client";
 
 import { AppName, Logo } from "@/components/icons";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function AppHeader() {
   return (
@@ -8,6 +9,9 @@ export function AppHeader() {
       <div className="flex items-center gap-2">
         <Logo className="h-8 w-8 text-primary" />
         <AppName />
+      </div>
+      <div className="ml-auto">
+        <ThemeToggle />
       </div>
     </header>
   );
