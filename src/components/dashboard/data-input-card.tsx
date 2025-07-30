@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -11,9 +11,10 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UploadCloud, Loader2, Image as ImageIcon, X } from "lucide-react";
+import { UploadCloud, Loader2, Image as ImageIcon, X, ClipboardPaste } from "lucide-react";
 import { useFormStatus } from "react-dom";
 import Image from "next/image";
+import { useToast } from '@/hooks/use-toast';
 
 type DataInputCardProps = {
   formRef: React.RefObject<HTMLFormElement>;
@@ -43,10 +44,19 @@ export default function DataInputCard({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [dataUri, setDataUri] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropzoneRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleFileChange = (file: File | null) => {
     if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast({
+            title: "Invalid File Type",
+            description: "Please upload an image file (PNG, JPG, GIF).",
+            variant: "destructive",
+        });
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
@@ -60,6 +70,11 @@ export default function DataInputCard({
     }
   };
 
+  const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    handleFileChange(file || null);
+  }
+
   const handleRemoveImage = () => {
     setPreviewUrl(null);
     setDataUri('');
@@ -67,6 +82,32 @@ export default function DataInputCard({
         fileInputRef.current.value = '';
     }
   }
+
+  const handlePaste = async () => {
+    try {
+        const clipboardItems = await navigator.clipboard.read();
+        for (const item of clipboardItems) {
+            const imageType = item.types.find(type => type.startsWith('image/'));
+            if (imageType) {
+                const blob = await item.getType(imageType);
+                handleFileChange(new File([blob], "pasted-image.png", { type: imageType }));
+                return;
+            }
+        }
+        toast({
+            title: "No Image Found",
+            description: "No image was found on your clipboard.",
+            variant: "destructive",
+        });
+    } catch(err) {
+        console.error("Paste failed", err);
+        toast({
+            title: "Paste Failed",
+            description: "Could not read image from clipboard. Your browser might not support this feature or require permissions.",
+            variant: "destructive",
+        });
+    }
+  };
 
   return (
     <Card>
@@ -77,7 +118,7 @@ export default function DataInputCard({
             <CardTitle>Upload Game Data</CardTitle>
           </div>
           <CardDescription>
-            Upload an image of your historical game data.
+            Upload an image of your historical game data. You can also paste it from clipboard.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -102,6 +143,7 @@ export default function DataInputCard({
             </div>
           ) : (
             <div
+              ref={dropzoneRef}
               className="flex items-center justify-center w-full"
               onClick={() => fileInputRef.current?.click()}
             >
@@ -126,7 +168,7 @@ export default function DataInputCard({
                   type="file"
                   className="hidden"
                   accept="image/png, image/jpeg, image/gif"
-                  onChange={handleFileChange}
+                  onChange={handleFileInputChange}
                 />
               </label>
             </div>
@@ -138,8 +180,12 @@ export default function DataInputCard({
             </p>
           )}
         </CardContent>
-        <CardFooter>
-          <SubmitButton />
+        <CardFooter className="justify-between">
+            <SubmitButton />
+            <Button type="button" variant="outline" onClick={handlePaste}>
+                <ClipboardPaste className="mr-2 h-4 w-4" />
+                Paste Image
+            </Button>
         </CardFooter>
       </form>
     </Card>
