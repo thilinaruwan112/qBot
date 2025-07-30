@@ -41,6 +41,7 @@ export default function DataInputCard({
   errors,
 }: DataInputCardProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [dataUri, setDataUri] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,16 +49,20 @@ export default function DataInputCard({
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
+        const result = reader.result as string;
+        setPreviewUrl(result);
+        setDataUri(result);
       };
       reader.readAsDataURL(file);
     } else {
       setPreviewUrl(null);
+      setDataUri('');
     }
   };
 
   const handleRemoveImage = () => {
     setPreviewUrl(null);
+    setDataUri('');
     if (fileInputRef.current) {
         fileInputRef.current.value = '';
     }
@@ -76,6 +81,7 @@ export default function DataInputCard({
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <input type="hidden" name="photoDataUri" value={dataUri} />
           {previewUrl ? (
             <div className="relative">
               <Image
@@ -100,7 +106,7 @@ export default function DataInputCard({
               onClick={() => fileInputRef.current?.click()}
             >
               <label
-                htmlFor="photoDataUri"
+                htmlFor="file-upload"
                 className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-secondary"
               >
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -114,9 +120,9 @@ export default function DataInputCard({
                   </p>
                 </div>
                 <Input
-                  id="photoDataUri"
+                  id="file-upload"
                   ref={fileInputRef}
-                  name="photoDataUri"
+                  name="file-upload"
                   type="file"
                   className="hidden"
                   accept="image/png, image/jpeg, image/gif"
