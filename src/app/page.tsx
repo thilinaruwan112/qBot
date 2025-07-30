@@ -9,6 +9,7 @@ import { AppHeader } from '@/components/dashboard/header';
 import DataInputCard from '@/components/dashboard/data-input-card';
 import AnalysisResultCard from '@/components/dashboard/analysis-result-card';
 import CrashHistoryChart from '@/components/dashboard/crash-history-chart';
+import ExtractedDataCard from '@/components/dashboard/extracted-data-card';
 
 type State = {
   message: string;
@@ -64,6 +65,9 @@ export default function HomePage() {
               formAction={formAction}
               errors={state.errors}
             />
+             {state.analysisResult && (
+              <ExtractedDataCard extractedData={state.analysisResult.extractedData} />
+            )}
             <CrashHistoryChart gameData={gameData} />
           </div>
           {state.analysisResult && (

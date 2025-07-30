@@ -24,7 +24,6 @@ export default function CrashHistoryChart({ gameData }: CrashHistoryChartProps) 
       const crashPoints = cleanedData.match(/[\d.]+(?=x)/g) || [];
 
       return crashPoints
-        .slice(0, 20)
         .reverse()
         .map((crashPointStr, index) => {
           const crashPoint = parseFloat(crashPointStr);
@@ -50,7 +49,7 @@ export default function CrashHistoryChart({ gameData }: CrashHistoryChartProps) 
           <CardTitle>Crash History Visualizer</CardTitle>
         </div>
         <CardDescription>
-          A bar chart of the last 20 crash points from your data.
+          A bar chart of the crash points from your data.
         </CardDescription>
       </CardHeader>
       <CardContent>
