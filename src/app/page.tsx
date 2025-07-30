@@ -32,11 +32,20 @@ export default function HomePage() {
   const [gameData, setGameData] = React.useState('');
 
   useEffect(() => {
+    if (state.analysisResult?.extractedData) {
+      setGameData(state.analysisResult.extractedData);
+    }
+  }, [state.analysisResult?.extractedData]);
+
+  useEffect(() => {
     if (state.message === 'Success' && state.analysisResult) {
       toast({
         title: 'Analysis Complete',
         description: 'Betting patterns analyzed successfully.',
       });
+      if (formRef.current) {
+        formRef.current.reset();
+      }
     } else if (state.message && state.message !== 'Success') {
       toast({
         title: 'Analysis Failed',
@@ -56,7 +65,6 @@ export default function HomePage() {
               formRef={formRef}
               formAction={formAction}
               errors={state.errors}
-              onTextareaChange={(e) => setGameData(e.target.value)}
             />
             {state.analysisResult && (
               <AnalysisResultCard analysisResult={state.analysisResult} />

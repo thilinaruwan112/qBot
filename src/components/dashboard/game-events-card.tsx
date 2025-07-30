@@ -28,24 +28,20 @@ export default function GameEventsCard({ gameData }: GameEventsCardProps) {
   const gameEvents = useMemo<GameEvent[]>(() => {
     if (!gameData) return [];
     try {
-      const lines = gameData.trim().split("\n");
-      const header = lines[0].split(",").map(h => h.trim());
-      const crashPointIndex = header.indexOf("crash_point");
-      const timestampIndex = header.indexOf("timestamp");
+        const cleanedData = gameData.replace(/Round History/i, '').trim();
+        const crashPoints = cleanedData.match(/[\d.]+(?=x)/g) || [];
 
-      if (crashPointIndex === -1 || timestampIndex === -1) return [];
-
-      return lines
-        .slice(1, 21)
-        .map((line, index) => {
-          const values = line.split(",");
-          const crashPoint = parseFloat(values[crashPointIndex]);
-          const timestamp = values[timestampIndex];
-          if (isNaN(crashPoint) || !timestamp) return null;
+        // For this card, we only need the crash point.
+        // We'll generate a mock timestamp.
+      return crashPoints
+        .slice(0, 20)
+        .map((crashPointStr, index) => {
+          const crashPoint = parseFloat(crashPointStr);
+          if (isNaN(crashPoint)) return null;
           return {
             id: `event-${index}`,
             crashPoint,
-            timestamp,
+            timestamp: new Date(Date.now() - index * 60000).toISOString(),
           };
         })
         .filter((event): event is GameEvent => event !== null);

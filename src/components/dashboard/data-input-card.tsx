@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useRef } from 'react';
 import {
   Card,
   CardContent,
@@ -9,15 +10,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { UploadCloud, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { UploadCloud, Loader2, Image as ImageIcon, X } from "lucide-react";
 import { useFormStatus } from "react-dom";
+import Image from "next/image";
 
 type DataInputCardProps = {
   formRef: React.RefObject<HTMLFormElement>;
   formAction: (payload: FormData) => void;
   errors: Record<string, string[]> | null | undefined;
-  onTextareaChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
 };
 
 function SubmitButton() {
@@ -38,8 +39,29 @@ export default function DataInputCard({
   formRef,
   formAction,
   errors,
-  onTextareaChange,
 }: DataInputCardProps) {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewUrl(null);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+    }
+  }
 
   return (
     <Card>
@@ -50,23 +72,63 @@ export default function DataInputCard({
             <CardTitle>Upload Game Data</CardTitle>
           </div>
           <CardDescription>
-            Paste your historical game data (e.g., in CSV format) below.
+            Upload an image of your historical game data.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Textarea
-            name="gameData"
-            placeholder="crash_point,timestamp
-1.23,2023-10-27T10:00:00Z
-2.45,2023-10-27T10:01:00Z
-1.01,2023-10-27T10:02:00Z
-..."
-            className="min-h-[200px] font-mono text-xs"
-            onChange={onTextareaChange}
-          />
-          {errors?.gameData && (
+          {previewUrl ? (
+            <div className="relative">
+              <Image
+                src={previewUrl}
+                alt="Uploaded preview"
+                width={500}
+                height={300}
+                className="rounded-md object-contain"
+              />
+              <Button 
+                variant="destructive" 
+                size="icon" 
+                className="absolute top-2 right-2 h-6 w-6"
+                onClick={handleRemoveImage}
+                >
+                  <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <div
+              className="flex items-center justify-center w-full"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <label
+                htmlFor="photoDataUri"
+                className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-secondary"
+              >
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <ImageIcon className="w-8 h-8 mb-4 text-muted-foreground" />
+                  <p className="mb-2 text-sm text-muted-foreground">
+                    <span className="font-semibold">Click to upload</span> or drag
+                    and drop
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    PNG, JPG or GIF
+                  </p>
+                </div>
+                <Input
+                  id="photoDataUri"
+                  ref={fileInputRef}
+                  name="photoDataUri"
+                  type="file"
+                  className="hidden"
+                  accept="image/png, image/jpeg, image/gif"
+                  onChange={handleFileChange}
+                />
+              </label>
+            </div>
+          )}
+
+          {errors?.photoDataUri && (
             <p className="text-sm font-medium text-destructive mt-2">
-              {errors.gameData[0]}
+              {errors.photoDataUri[0]}
             </p>
           )}
         </CardContent>

@@ -4,8 +4,8 @@ import { analyzeBettingPatterns, type AnalyzeBettingPatternsOutput } from '@/ai/
 import { z } from 'zod';
 
 const formSchema = z.object({
-  gameData: z.string().min(10, {
-    message: 'Game data must be at least 10 characters.',
+  photoDataUri: z.string().min(1, {
+    message: 'Please upload an image.',
   }),
 });
 
@@ -18,12 +18,12 @@ export type AnalysisState = {
 
 export async function getBettingAnalysis(prevState: AnalysisState, formData: FormData): Promise<AnalysisState> {
   const validatedFields = formSchema.safeParse({
-    gameData: formData.get('gameData'),
+    photoDataUri: formData.get('photoDataUri'),
   });
 
   if (!validatedFields.success) {
     return {
-      message: 'Invalid form data. Please provide more data.',
+      message: 'Invalid form data. Please upload an image.',
       errors: validatedFields.error.flatten().fieldErrors,
       analysisResult: null,
     };
@@ -31,7 +31,7 @@ export async function getBettingAnalysis(prevState: AnalysisState, formData: For
 
   try {
     const result = await analyzeBettingPatterns({
-      gameData: validatedFields.data.gameData,
+      photoDataUri: validatedFields.data.photoDataUri,
     });
     return {
       message: 'Success',

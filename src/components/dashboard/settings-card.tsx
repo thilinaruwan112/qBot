@@ -32,21 +32,20 @@ export default function SettingsCard({ gameData }: SettingsCardProps) {
 
     let blob;
     let filename;
-
+    
     try {
+        const cleanedData = gameData.replace(/Round History/i, '').trim();
+        const crashPoints = cleanedData.match(/[\d.]+(?=x)/g) || [];
+
         if (format === 'csv') {
-            blob = new Blob([gameData], { type: 'text/csv;charset=utf-8;' });
+            const csvContent = "crash_point,timestamp\n" + crashPoints.map((cp, i) => `${cp},${new Date(Date.now() - i * 60000).toISOString()}`).join('\n');
+            blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             filename = 'skybet-data.csv';
         } else {
-            const lines = gameData.trim().split('\n');
-            const headers = lines[0].split(',').map(h => h.trim());
-            const json = lines.slice(1).map(line => {
-                const values = line.split(',');
-                return headers.reduce((obj, header, i) => {
-                    (obj as any)[header] = values[i] ? values[i].trim() : null;
-                    return obj;
-                }, {});
-            });
+            const json = crashPoints.map((cp, i) => ({
+                crash_point: parseFloat(cp),
+                timestamp: new Date(Date.now() - i * 60000).toISOString()
+            }));
             blob = new Blob([JSON.stringify(json, null, 2)], { type: 'application/json;charset=utf-8;' });
             filename = 'skybet-data.json';
         }
@@ -69,7 +68,7 @@ export default function SettingsCard({ gameData }: SettingsCardProps) {
     } catch (error) {
         toast({
             title: "Export Failed",
-            description: "Could not convert data to JSON. Please check the CSV format.",
+            description: "Could not convert data. Please check the data format.",
             variant: "destructive"
         })
     }

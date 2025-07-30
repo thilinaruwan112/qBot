@@ -11,10 +11,10 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const AnalyzeBettingPatternsInputSchema = z.object({
-  gameData: z
+  photoDataUri: z
     .string()
     .describe(
-      'Historical Aviator game data, provided as a string, such as a CSV or JSON format.'
+      "A photo of the game data, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
 });
 export type AnalyzeBettingPatternsInput = z.infer<typeof AnalyzeBettingPatternsInputSchema>;
@@ -26,6 +26,7 @@ const AnalyzeBettingPatternsOutputSchema = z.object({
     .describe(
       'Suggested bet positions based on the analysis, including risk levels and potential yields.'
     ),
+  extractedData: z.string().describe('The raw data extracted from the image for display.')
 });
 export type AnalyzeBettingPatternsOutput = z.infer<typeof AnalyzeBettingPatternsOutputSchema>;
 
@@ -39,11 +40,11 @@ const prompt = ai.definePrompt({
   name: 'analyzeBettingPatternsPrompt',
   input: {schema: AnalyzeBettingPatternsInputSchema},
   output: {schema: AnalyzeBettingPatternsOutputSchema},
-  prompt: `You are an expert in analyzing Aviator game data to identify betting patterns.
+  prompt: `You are an expert in analyzing Aviator game data from an image to identify betting patterns.
 
-  Analyze the provided game data to identify potential betting patterns and generate a statistical distribution of advantageous bet positions. Provide specific betting positions and risk levels for the user.
+  Analyze the provided image of game data to identify potential betting patterns and generate a statistical distribution of advantageous bet positions. Provide specific betting positions and risk levels for the user. First, extract the round history from the image and put it in the extractedData field.
 
-  Game Data: {{{gameData}}}`,
+  Image: {{media url=photoDataUri}}`,
 });
 
 const analyzeBettingPatternsFlow = ai.defineFlow(
