@@ -63,9 +63,7 @@ const prompt = ai.definePrompt({
   1.  **Study Multiplier Trends:** Analyze the multiplier trends from the historical data to gain insights into how often the plane crashes at various multiplier levels. While each flight is random, identify any patterns that may emerge over time.
   2.  **Utilize Statistical Analysis:** Apply statistical analysis to past results to identify trends or anomalies. Tools such as moving averages or regression analysis can help predict future outcomes.
   
-  Based on your analysis, predict the multiplier values for the next 5 rounds and populate the 'predictedNextRounds' field.
-
-  Provide specific betting positions and risk levels for the user, but only suggest bets with a probability of 80% or higher.
+  Based on your analysis, provide specific betting positions and risk levels for the user, but only suggest bets with a probability of 80% or higher.
 
   Structure your analysis in the 'analysis' field using the following format. Do not include markdown or emojis.
 
@@ -79,6 +77,8 @@ const prompt = ai.definePrompt({
 
   Betting Suggestion:
   [Based on the combined analysis, give a clear, actionable suggestion with explicit reasoning. Explain how to use the analysis to identify the opportunity. For example: "The analysis indicates a high multiplier may occur soon. Therefore, there is a high probability of a significant multiplier on the next round. I suggest placing a bet for position X." This makes the logic clear.]
+
+  After you have completed the detailed analysis and betting suggestion, predict the multiplier values for the next 5 rounds based on the patterns and trends you identified. Populate the 'predictedNextRounds' field with these values.
 
   {{#if historicalData}}
   Use this full historical data for a more comprehensive analysis:
