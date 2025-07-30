@@ -8,5 +8,6 @@ export type BetSuggestion = {
 export type GameEvent = {
   id: string;
   crashPoint: number;
-  timestamp: string;
+  timestamp?: string;
+  name?: string;
 };

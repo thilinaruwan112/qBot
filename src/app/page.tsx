@@ -8,8 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AppHeader } from '@/components/dashboard/header';
 import DataInputCard from '@/components/dashboard/data-input-card';
 import AnalysisResultCard from '@/components/dashboard/analysis-result-card';
-import GameEventsCard from '@/components/dashboard/game-events-card';
-import SettingsCard from '@/components/dashboard/settings-card';
+import CrashHistoryChart from '@/components/dashboard/crash-history-chart';
 
 type State = {
   message: string;
@@ -58,23 +57,18 @@ export default function HomePage() {
     <div className="flex min-h-screen w-full flex-col">
       <AppHeader />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-1 flex flex-col gap-4">
+        <div className="grid gap-4 md:grid-cols-2 md:gap-8">
+          <div className="flex flex-col gap-4">
             <DataInputCard
               formRef={formRef}
               formAction={formAction}
               errors={state.errors}
             />
-            {state.analysisResult && (
+            <CrashHistoryChart gameData={gameData} />
+          </div>
+          {state.analysisResult && (
               <AnalysisResultCard analysisResult={state.analysisResult} />
-            )}
-          </div>
-          <div className="lg:col-span-2 flex flex-col gap-4">
-             <div className="grid gap-4 md:grid-cols-2">
-                <GameEventsCard gameData={gameData} />
-                <SettingsCard gameData={gameData} />
-             </div>
-          </div>
+          )}
         </div>
       </main>
     </div>
