@@ -2,6 +2,7 @@
 
 import type { AnalyzeBettingPatternsOutput } from "@/ai/flows/analyze-betting-patterns";
 import type { BetSuggestion } from "@/lib/types";
+import { useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -25,9 +26,18 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { BrainCircuit, Info } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 type AnalysisResultCardProps = {
   analysisResult: AnalyzeBettingPatternsOutput;
+};
+
+type ParsedAnalysis = {
+  title: string;
+  highMultipliers: string;
+  patternDetection: string;
+  currentSituation: string;
+  bettingSuggestion: string;
 };
 
 export default function AnalysisResultCard({
@@ -45,6 +55,38 @@ export default function AnalysisResultCard({
         return "destructive";
     }
   };
+
+  const parsedAnalysis: ParsedAnalysis | null = useMemo(() => {
+    if (!analysisResult.analysis) return null;
+
+    const lines = analysisResult.analysis.split('\n').filter(line => line.trim() !== '');
+    
+    const findSectionIndex = (keyword: string) => lines.findIndex(line => line.toLowerCase().startsWith(keyword.toLowerCase()));
+
+    const titleIndex = findSectionIndex("Latest Aviator");
+    const highMultipliersIndex = findSectionIndex("High Multipliers");
+    const patternDetectionIndex = findSectionIndex("Pattern Detection");
+    const currentSituationIndex = findSectionIndex("Current Situation");
+    const bettingSuggestionIndex = findSectionIndex("Betting Suggestion");
+
+    if (titleIndex === -1) return null;
+    
+    const getSectionContent = (startIndex: number, endIndex: number) => {
+        if (startIndex === -1) return '';
+        const contentLines = lines.slice(startIndex, endIndex === -1 ? undefined : endIndex);
+        const title = contentLines.shift()?.replace(/.*?:/,'').trim() ?? '';
+        return contentLines.join('\n').trim();
+    };
+
+    return {
+      title: lines[titleIndex],
+      highMultipliers: getSectionContent(highMultipliersIndex, patternDetectionIndex),
+      patternDetection: getSectionContent(patternDetectionIndex, currentSituationIndex),
+      currentSituation: getSectionContent(currentSituationIndex, bettingSuggestionIndex),
+      bettingSuggestion: getSectionContent(bettingSuggestionIndex, -1),
+    };
+  }, [analysisResult.analysis]);
+
   return (
     <Card>
       <CardHeader>
@@ -57,12 +99,49 @@ export default function AnalysisResultCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div>
-          <h3 className="font-semibold mb-2">Betting Pattern Analysis</h3>
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-            {analysisResult.analysis}
-          </p>
-        </div>
+        {parsedAnalysis ? (
+           <div className="space-y-6 text-sm">
+            <h3 className="text-lg font-semibold text-foreground">{parsedAnalysis.title}</h3>
+
+            {parsedAnalysis.highMultipliers && (
+              <div className="space-y-2">
+                <h4 className="font-semibold">High Multipliers (Recent)</h4>
+                <p className="text-muted-foreground">{parsedAnalysis.highMultipliers}</p>
+              </div>
+            )}
+            
+            {parsedAnalysis.patternDetection && (
+              <div className="space-y-2">
+                <h4 className="font-semibold">Pattern Detection (Recent High Gaps)</h4>
+                <pre className="text-muted-foreground text-xs whitespace-pre-wrap font-mono bg-muted p-2 rounded-md">{parsedAnalysis.patternDetection}</pre>
+              </div>
+            )}
+            
+            {parsedAnalysis.currentSituation && (
+              <div className="space-y-2">
+                <h4 className="font-semibold">Current Situation</h4>
+                <p className="text-muted-foreground whitespace-pre-wrap">{parsedAnalysis.currentSituation}</p>
+              </div>
+            )}
+            
+            {parsedAnalysis.bettingSuggestion && (
+              <div className="space-y-2">
+                <h4 className="font-semibold">Betting Suggestion</h4>
+                <p className="text-muted-foreground whitespace-pre-wrap">{parsedAnalysis.bettingSuggestion}</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div>
+            <h3 className="font-semibold mb-2">Betting Pattern Analysis</h3>
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+              {analysisResult.analysis}
+            </p>
+          </div>
+        )}
+
+        <Separator />
+        
         <div>
           <h3 className="font-semibold mb-2">Suggested Bet Positions</h3>
           {Array.isArray(analysisResult.suggestedBetPositions) &&

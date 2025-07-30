@@ -31,7 +31,7 @@ const BetSuggestionSchema = z.object({
 });
 
 const AnalyzeBettingPatternsOutputSchema = z.object({
-  analysis: z.string().describe('The analysis of betting patterns.'),
+  analysis: z.string().describe('The analysis of betting patterns. It should start with a title, then sections for High Multipliers, Pattern Detection, Current Situation, and Betting Suggestion.'),
   suggestedBetPositions: z
     .array(BetSuggestionSchema)
     .describe(
@@ -57,25 +57,25 @@ const prompt = ai.definePrompt({
 
   Then, perform a deep analysis of the provided image of game data. Identify complex patterns, calculate statistical distributions, and determine advantageous bet positions. Provide specific betting positions and risk levels for the user, but only suggest bets with a probability of 80% or higher.
 
-  Structure your analysis in the 'analysis' field using the following format, including the emojis and markdown:
+  Structure your analysis in the 'analysis' field using the following format. Do not include markdown or emojis.
 
-  ### 🔎 Latest Aviator Round History Analysis
-  **🟣 High Multipliers (Recent):**
+  Latest Aviator Round History Analysis
+  High Multipliers (Recent):
   List the recent high multipliers (e.g., >10x) you've identified.
 
-  **🔥 Pattern Detection (Recent High Gaps):**
+  Pattern Detection (Recent High Gaps):
   Show recent streaks of low/medium multipliers that were followed by a high multiplier. For example:
-  Low/Medium Streak → High Multiplier After
-  1.62x → 2.62x → 2.73x → 11.04x
+  Low/Medium Streak -> High Multiplier After
+  1.62x -> 2.62x -> 2.73x -> 11.04x
   ...
-  NOW: [current streak] → ???
+  NOW: [current streak] -> ???
 
-  **⚠️ Current Situation:**
+  Current Situation:
   - Briefly describe the most recent rounds.
   - Note how many rounds it has been since the last true high multiplier.
   - Provide any other critical observations from your deep analysis.
 
-  **✅ Betting Suggestion:**
+  Betting Suggestion:
   - Based on the patterns, give a clear, actionable suggestion.
   - For example: "If next round is low (under 2x), prepare to bet in the 2nd or 3rd round for a 10x+ cashout."
   - Explain the reasoning based on past patterns (e.g., "Past pattern shows high multipliers come every ~6-8 low/medium rounds.")
