@@ -38,6 +38,7 @@ const AnalyzeBettingPatternsOutputSchema = z.object({
       'A list of suggested bet positions based on the analysis, including risk levels and potential yields. Only include suggestions with a probability of 80% or higher and a multiplier of at least 5x.'
     ),
   extractedData: z.string().describe('The raw data extracted from the image for display. Provide all available values, not just a limited set.'),
+  predictions: z.array(z.number()).describe('A list of 10 predicted multiplier values for the next 10 rounds.'),
 });
 export type AnalyzeBettingPatternsOutput = z.infer<typeof AnalyzeBettingPatternsOutputSchema>;
 
@@ -74,7 +75,9 @@ const prompt = ai.definePrompt({
   Betting Suggestion:
   [Based on the pattern analysis and the current sequence, give a clear, actionable suggestion with explicit reasoning. For example: "The last Pink multiplier was 7 rounds ago, and there has been a streak of 6 blue/purple rounds. According to the strategy, a high multiplier may be due. I suggest placing a bet for a position above 10x on an upcoming round." This makes the logic clear.]
 
-  Finally, populate the 'suggestedBetPositions' field. Focus on suggestions with a multiplier of at least 5x and a high probability (80% or more) based on your analysis.
+  Then, populate the 'suggestedBetPositions' field. Focus on suggestions with a multiplier of at least 5x and a high probability (80% or more) based on your analysis.
+
+  Finally, based on your analysis, predict the multiplier values for the next 10 rounds and add them to the 'predictions' field.
 
   Use this image for the most recent data:
   Image: {{media url=photoDataUri}}`,

@@ -21,7 +21,7 @@ export default function PredictionsCard({
       <CardHeader>
         <div className="flex items-center gap-2">
           <TrendingUp className="h-6 w-6 text-primary" />
-          <CardTitle>Next 5 Rounds Prediction</CardTitle>
+          <CardTitle>Next 10 Rounds Prediction</CardTitle>
         </div>
         <CardDescription>
           The AI's prediction for the upcoming game multipliers.
@@ -31,7 +31,7 @@ export default function PredictionsCard({
         {predictions && predictions.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {predictions.map((prediction, index) => (
-              <Badge key={index} variant={prediction > 5 ? "destructive" : (prediction > 2 ? "default" : "secondary")} className="text-lg font-bold p-2">
+              <Badge key={index} variant={prediction > 10 ? "destructive" : (prediction > 2 ? "default" : "secondary")} className="text-lg font-bold p-2">
                 {prediction.toFixed(2)}x
               </Badge>
             ))}
