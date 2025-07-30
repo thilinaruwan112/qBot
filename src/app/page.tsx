@@ -1,7 +1,7 @@
 'use client';
 
 import { useFormState } from 'react-dom';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { AnalyzeBettingPatternsOutput } from '@/ai/flows/analyze-betting-patterns';
 import { getBettingAnalysis } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -10,17 +10,20 @@ import DataInputCard from '@/components/dashboard/data-input-card';
 import AnalysisResultCard from '@/components/dashboard/analysis-result-card';
 import CrashHistoryChart from '@/components/dashboard/crash-history-chart';
 import ExtractedDataCard from '@/components/dashboard/extracted-data-card';
+import HistoricalDataCard from '@/components/dashboard/historical-data-card';
 
 type State = {
   message: string;
   errors: Record<string, string[]> | null;
   analysisResult: AnalyzeBettingPatternsOutput | null;
+  historicalData?: string[];
 };
 
 const initialState: State = {
   message: '',
   errors: null,
   analysisResult: null,
+  historicalData: [],
 };
 
 export default function HomePage() {
@@ -28,13 +31,17 @@ export default function HomePage() {
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
-  const [gameData, setGameData] = React.useState('');
+  const [gameData, setGameData] = useState('');
+  const [historicalData, setHistoricalData] = useState<string[]>([]);
 
   useEffect(() => {
     if (state.analysisResult?.extractedData) {
       setGameData(state.analysisResult.extractedData);
     }
-  }, [state.analysisResult?.extractedData]);
+    if (state.historicalData) {
+      setHistoricalData(state.historicalData);
+    }
+  }, [state.analysisResult?.extractedData, state.historicalData]);
 
   useEffect(() => {
     if (state.message === 'Success' && state.analysisResult) {
@@ -67,6 +74,9 @@ export default function HomePage() {
             />
              {state.analysisResult && (
               <ExtractedDataCard extractedData={state.analysisResult.extractedData} />
+            )}
+            {historicalData.length > 0 && (
+                <HistoricalDataCard historicalData={historicalData} />
             )}
             <CrashHistoryChart gameData={gameData} />
           </div>

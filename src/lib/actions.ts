@@ -18,6 +18,7 @@ export type AnalysisState = {
   message: string;
   errors: Record<string, string[]> | null;
   analysisResult: AnalyzeBettingPatternsOutput | null;
+  historicalData?: string[];
 };
 
 // Simple in-memory cache for game data to avoid reading the file on every request
@@ -97,6 +98,7 @@ export async function getBettingAnalysis(
       message: 'Success',
       errors: null,
       analysisResult: finalResult,
+      historicalData: fullHistory,
     };
   } catch (error) {
     console.error("Error during analysis:", error);
