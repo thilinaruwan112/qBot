@@ -16,7 +16,6 @@ const AnalyzeBettingPatternsInputSchema = z.object({
     .describe(
       "A photo of the game data, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
-    historicalData: z.string().optional().describe('A string of historical game data to use for a more comprehensive analysis.')
 });
 export type AnalyzeBettingPatternsInput = z.infer<typeof AnalyzeBettingPatternsInputSchema>;
 
@@ -76,11 +75,6 @@ const prompt = ai.definePrompt({
   [Based on the pattern analysis and the current sequence, give a clear, actionable suggestion with explicit reasoning. For example: "The last Pink multiplier was 7 rounds ago, and there has been a streak of 6 blue/purple rounds. According to the strategy, a high multiplier may be due. I suggest placing a bet for a position above 10x on an upcoming round." This makes the logic clear.]
 
   Finally, populate the 'suggestedBetPositions' field. Focus on suggestions with a multiplier of at least 5x and a high probability (80% or more) based on your analysis.
-
-  {{#if historicalData}}
-  Use this full historical data for a more comprehensive analysis:
-  {{{historicalData}}}
-  {{/if}}
 
   Use this image for the most recent data:
   Image: {{media url=photoDataUri}}`,
