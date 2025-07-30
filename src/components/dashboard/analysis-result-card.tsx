@@ -37,6 +37,7 @@ type ParsedAnalysis = {
   movingAverage: string;
   frequencyDistribution: string;
   gapAnalysis: string;
+  patternDetection: string;
   bettingSuggestion: string;
 };
 
@@ -67,6 +68,7 @@ export default function AnalysisResultCard({
     const movingAverageIndex = findSectionIndex("Moving Average Analysis");
     const frequencyDistributionIndex = findSectionIndex("Frequency Distribution");
     const gapAnalysisIndex = findSectionIndex("Gap Analysis");
+    const patternDetectionIndex = findSectionIndex("Pattern Detection");
     const bettingSuggestionIndex = findSectionIndex("Betting Suggestion");
 
     if (titleIndex === -1) return null;
@@ -74,15 +76,17 @@ export default function AnalysisResultCard({
     const getSectionContent = (startIndex: number, endIndex: number) => {
         if (startIndex === -1) return '';
         const contentLines = lines.slice(startIndex, endIndex === -1 ? undefined : endIndex);
-        const title = contentLines.shift()?.replace(/.*?:/,'').trim() ?? '';
-        return contentLines.join('\n').trim();
+        const titleLine = contentLines.shift() || '';
+        const title = titleLine.substring(titleLine.indexOf(':') + 1).trim();
+        return title ? title + '\n' + contentLines.join('\n').trim() : contentLines.join('\n').trim();
     };
 
     return {
       title: lines[titleIndex],
       movingAverage: getSectionContent(movingAverageIndex, frequencyDistributionIndex),
       frequencyDistribution: getSectionContent(frequencyDistributionIndex, gapAnalysisIndex),
-      gapAnalysis: getSectionContent(gapAnalysisIndex, bettingSuggestionIndex),
+      gapAnalysis: getSectionContent(gapAnalysisIndex, patternDetectionIndex),
+      patternDetection: getSectionContent(patternDetectionIndex, bettingSuggestionIndex),
       bettingSuggestion: getSectionContent(bettingSuggestionIndex, -1),
     };
   }, [analysisResult.analysis]);
@@ -121,6 +125,13 @@ export default function AnalysisResultCard({
               <div className="space-y-2">
                 <h4 className="font-semibold">Gap Analysis</h4>
                 <p className="text-muted-foreground whitespace-pre-wrap">{parsedAnalysis.gapAnalysis}</p>
+              </div>
+            )}
+            
+            {parsedAnalysis.patternDetection && (
+              <div className="space-y-2">
+                <h4 className="font-semibold">Pattern Detection</h4>
+                <p className="text-muted-foreground whitespace-pre-wrap">{parsedAnalysis.patternDetection}</p>
               </div>
             )}
             

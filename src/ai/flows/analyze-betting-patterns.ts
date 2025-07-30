@@ -61,6 +61,7 @@ const prompt = ai.definePrompt({
   1.  **Moving Average Analysis:** Smooth out short-term fluctuations to identify streaks of low or high multipliers. Calculate the average multiplier of the last 5 rounds. If it’s low (<2x), state that you expect a high one soon.
   2.  **Frequency Distribution:** Track how often certain multiplier ranges occur. State the probability of getting ≤2x, 2–10x, and ≥10x based on the data.
   3.  **Gap Analysis:** Measure the number of low rounds before each high round. Use this to predict when the next high multiplier might appear.
+  4.  **Pattern Detection:** Identify recurring sequences of multipliers that lead to a high-value outcome. For example, "1.2x -> 1.5x -> 1.1x -> 10x" is a pattern.
 
   Provide specific betting positions and risk levels for the user, but only suggest bets with a probability of 80% or higher.
 
@@ -76,6 +77,9 @@ const prompt = ai.definePrompt({
 
   Gap Analysis:
   [Your analysis of the gaps between high multipliers and what it predicts]
+
+  Pattern Detection:
+  [Your analysis of recurring patterns and what they might predict for the next rounds]
 
   Betting Suggestion:
   [Based on the combined analysis, give a clear, actionable suggestion with explicit reasoning. Explain how to use the analysis to identify the opportunity. For example: "The Gap Analysis indicates a high multiplier occurs after about 5 low rounds. We are currently on the 4th low round. Therefore, there is a high probability of a significant multiplier on the next round. I suggest placing a bet for position X." This makes the logic clear.]
