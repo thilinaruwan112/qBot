@@ -45,7 +45,7 @@ export default function HomePage() {
             id: index,
             predictedValue: prediction,
             stake: 0,
-            actualOdd: 0,
+            actualOdd: prediction,
         })));
       }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { BetLogEntry } from '@/lib/types';
 import { ListChecks } from 'lucide-react';
+import { Label } from '../ui/label';
 
 type BettingLogCardProps = {
   betLog: BetLogEntry[];
@@ -28,13 +29,12 @@ type BettingLogCardProps = {
 };
 
 export default function BettingLogCard({ betLog, setBetLog }: BettingLogCardProps) {
+  const [commonStake, setCommonStake] = useState<number>(0);
 
-  const handleStakeChange = (id: number, value: string) => {
-    const newBetLog = [...betLog];
-    const bet = newBetLog.find(b => b.id === id);
-    if (bet) {
-      bet.stake = parseFloat(value) || 0;
-    }
+  const handleCommonStakeChange = (value: string) => {
+    const stakeValue = parseFloat(value) || 0;
+    setCommonStake(stakeValue);
+    const newBetLog = betLog.map(bet => ({ ...bet, stake: stakeValue }));
     setBetLog(newBetLog);
   };
 
@@ -73,10 +73,21 @@ export default function BettingLogCard({ betLog, setBetLog }: BettingLogCardProp
             <CardTitle>Betting Log & Performance</CardTitle>
         </div>
         <CardDescription>
-            Track your bets against AI predictions and see your performance.
+            Track your bets against AI predictions and see your performance. Use a common stake for all bets.
         </CardDescription>
       </CardHeader>
       <CardContent>
+        <div className="mb-4 flex items-center gap-2">
+            <Label htmlFor="common-stake" className="font-semibold">Common Stake:</Label>
+            <Input
+              id="common-stake"
+              type="number"
+              placeholder="Enter common stake"
+              className="w-32"
+              value={commonStake || ''}
+              onChange={(e) => handleCommonStakeChange(e.target.value)}
+            />
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
@@ -94,19 +105,13 @@ export default function BettingLogCard({ betLog, setBetLog }: BettingLogCardProp
                 <TableRow key={bet.id}>
                   <TableCell>Round {bet.id + 1}</TableCell>
                   <TableCell>{bet.predictedValue.toFixed(2)}x</TableCell>
-                  <TableCell>
-                    <Input
-                      type="number"
-                      placeholder="Enter stake"
-                      className="w-28"
-                      onChange={(e) => handleStakeChange(bet.id, e.target.value)}
-                    />
-                  </TableCell>
+                  <TableCell>{bet.stake.toFixed(2)}</TableCell>
                   <TableCell>
                     <Input
                       type="number"
                       placeholder="Enter actual odd"
                       className="w-28"
+                      value={bet.actualOdd || ''}
                       onChange={(e) => handleActualOddChange(bet.id, e.target.value)}
                     />
                   </TableCell>
