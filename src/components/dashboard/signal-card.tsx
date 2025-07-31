@@ -21,7 +21,7 @@ export default function SignalCard({ analysisResult }: SignalCardProps) {
   const getIcon = (title: string) => {
     switch (title.toLowerCase()) {
       case 'signal time':
-        return <SignalIcon />;
+        return <Clock className="h-6 w-6 text-blue-500" />;
       case 'duration':
         return <Pin className="h-6 w-6 text-red-500" />;
       case 'expected target':
@@ -29,7 +29,7 @@ export default function SignalCard({ analysisResult }: SignalCardProps) {
       case 'risk level':
         return <AlertTriangle className="h-6 w-6 text-yellow-500" />;
       default:
-        return <Clock className="h-6 w-6 text-blue-500" />;
+        return <SignalIcon />;
     }
   };
   
@@ -41,7 +41,7 @@ export default function SignalCard({ analysisResult }: SignalCardProps) {
   }
 
   const signalItems = [
-    { title: parseTitle(signalTime), value: timeRange, fullTitle: signalTime },
+    { title: signalTime, value: timeRange },
     { title: 'Duration', value: duration },
     { title: 'Expected Target', value: expectedTarget },
     { title: 'Risk Level', value: riskLevel },
@@ -51,17 +51,18 @@ export default function SignalCard({ analysisResult }: SignalCardProps) {
     <Card className="w-full max-w-md shadow-lg">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-2xl font-bold">
-            {getIcon('signal time')}
-            {signalTime}
+            <SignalIcon />
+            High-Odd Signal
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {signalItems.slice(1).map((item, index) => (
+        {signalItems.map((item, index) => (
           <div key={index} className="flex items-start gap-4">
             <div className="flex-shrink-0">
                 {getIcon(item.title.toLowerCase())}
             </div>
             <div className="flex-grow">
+              <p className="text-sm font-medium text-muted-foreground">{item.title}</p>
               <p className="text-lg font-semibold">{item.value}</p>
             </div>
           </div>
