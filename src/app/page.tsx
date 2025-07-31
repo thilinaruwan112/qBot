@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormState } from 'react-dom';
+import { useActionState } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import type { AnalyzeBettingPatternsOutput } from '@/ai/flows/analyze-betting-patterns';
 import { getBettingAnalysis } from '@/lib/actions';
@@ -26,7 +26,7 @@ const initialState: State = {
 };
 
 export default function HomePage() {
-  const [state, formAction] = useFormState(getBettingAnalysis, initialState);
+  const [state, formAction] = useActionState(getBettingAnalysis, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [betLog, setBetLog] = useState<BetLogEntry[]>([]);
