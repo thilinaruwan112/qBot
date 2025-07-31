@@ -10,6 +10,8 @@ import DataInputCard from '@/components/dashboard/data-input-card';
 import AnalysisResultCard from '@/components/dashboard/analysis-result-card';
 import ExtractedDataCard from '@/components/dashboard/extracted-data-card';
 import PredictionsCard from '@/components/dashboard/predictions-card';
+import BettingLogCard from '@/components/dashboard/betting-log-card';
+import { BetLogEntry } from '@/lib/types';
 
 type State = {
   message: string;
@@ -27,6 +29,7 @@ export default function HomePage() {
   const [state, formAction] = useFormState(getBettingAnalysis, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const [betLog, setBetLog] = useState<BetLogEntry[]>([]);
 
   useEffect(() => {
     if (state.message === 'Success' && state.analysisResult) {
@@ -37,6 +40,15 @@ export default function HomePage() {
       if (formRef.current) {
         formRef.current.reset();
       }
+      if(state.analysisResult.predictions) {
+        setBetLog(state.analysisResult.predictions.map((prediction, index) => ({
+            id: index,
+            predictedValue: prediction,
+            stake: 0,
+            actualOdd: 0,
+        })));
+      }
+
     } else if (state.message && state.message !== 'Success') {
       toast({
         title: 'Analysis Failed',
@@ -71,6 +83,9 @@ export default function HomePage() {
             )}
           </div>
         </div>
+        {state.analysisResult?.predictions && state.analysisResult.predictions.length > 0 && (
+            <BettingLogCard betLog={betLog} setBetLog={setBetLog} />
+        )}
       </main>
     </div>
   );

@@ -11,3 +11,10 @@ export type GameEvent = {
   timestamp?: string;
   name?: string;
 };
+
+export type BetLogEntry = {
+    id: number;
+    predictedValue: number;
+    stake: number;
+    actualOdd: number;
+};
