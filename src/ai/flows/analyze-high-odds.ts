@@ -1,8 +1,8 @@
 'use server';
 /**
- * @fileOverview Analyzes Aviator game round data from a "Provably Fair" screenshot to identify signals for high odds.
+ * @fileOverview Analyzes Aviator game round data from a "Provably Fair" screenshot to generate a high-odd signal.
  *
- * - analyzeHighOdds - A function that analyzes game seeds and hashes.
+ * - analyzeHighOdds - A function that analyzes game seeds and hashes to generate a signal.
  * - AnalyzeHighOddsInput - The input type for the analyzeHighOdds function.
  * - AnalyzeHighOddsOutput - The return type for the analyzeHighOdds function.
  */
@@ -20,14 +20,11 @@ const AnalyzeHighOddsInputSchema = z.object({
 export type AnalyzeHighOddsInput = z.infer<typeof AnalyzeHighOddsInputSchema>;
 
 const AnalyzeHighOddsOutputSchema = z.object({
-  extractedData: z.object({
-    roundId: z.string().describe('The extracted round ID.'),
-    serverSeed: z.string().describe('The extracted server seed.'),
-    clientSeed: z.string().describe('The extracted client seed.'),
-    combinedHash: z.string().describe('The combined SHA512 hash.'),
-    resultOdd: z.number().describe('The resulting odd for the round.'),
-  }),
-  analysisSignal: z.string().describe('A detailed analysis and signal based on the extracted data. It should explain if any patterns in the seeds or hash correlate with high-value odds and provide a strategic insight.'),
+    signalTime: z.string().describe("The time zone for the signal, e.g., 'Signal Time (Sri Lanka Time)'."),
+    timeRange: z.string().describe("The time range for the signal, e.g., '19:21:45 – 19:22:45'."),
+    duration: z.string().describe("The duration of the signal, e.g., '1 minute'."),
+    expectedTarget: z.string().describe("The expected multiplier target, e.g., '10x+'."),
+    riskLevel: z.string().describe("The risk level and justification, e.g., 'Low (Based on pattern after Round 3872070 with 69.97x)'."),
 });
 export type AnalyzeHighOddsOutput = z.infer<typeof AnalyzeHighOddsOutputSchema>;
 
@@ -41,20 +38,18 @@ const prompt = ai.definePrompt({
   name: 'analyzeHighOddsPrompt',
   input: {schema: AnalyzeHighOddsInputSchema},
   output: {schema: AnalyzeHighOddsOutputSchema},
-  prompt: `You are an expert in analyzing "Provably Fair" systems for games like Aviator. Your task is to extract all relevant data from the provided screenshot and generate a strategic signal based on it.
+  prompt: `You are an expert in analyzing "Provably Fair" systems for games like Aviator. Your task is to analyze the provided screenshot to generate a strategic signal for a high-odd event.
 
-  1.  **Extract Data:** Carefully extract the following from the image and populate the 'extractedData' field:
-      - Round ID
-      - Server Seed
-      - Client Seed (use Player N1's seed if multiple are present)
-      - Combined SHA512 Hash
-      - Result Odd (the final multiplier for the round)
+  1.  **Analyze Data:** Carefully analyze the data in the screenshot. This could be round history, 'Provably Fair' details (seeds, hashes), or other game data. Identify patterns or indicators that suggest a high-value multiplier might be imminent. Pay close attention to sequences of multipliers, time between high odds, and any data from the fair-play system.
 
-  2.  **Generate Analysis Signal:** Based on the extracted data, provide a detailed analysis in the 'analysisSignal' field. Your analysis should:
-      - Briefly explain the relationship between the seeds, the hash, and the result.
-      - Analyze if any characteristics of the seeds or the hash (e.g., specific characters, patterns, length) seem to correlate with the resulting odd being high (>10x) or low.
-      - Conclude with a strategic "signal" or insight. For example: "The analysis of round {roundId} shows that a server seed starting with '8F' and a client seed containing 'Wy2' resulted in a high odd of {resultOdd}x. While not a guarantee, players could watch for similar seed patterns as a potential indicator for higher-risk, high-reward bets."
-      - **Do not make definitive predictions.** Frame the output as an analytical insight into potential correlations.
+  2.  **Generate a Signal:** Based on your analysis, generate a signal with the following components.
+      - **Signal Time:** Determine the appropriate time zone. If not specified, use a generic placeholder like "Signal Time (Local)".
+      - **Time Range:** Based on the current time (assume the image is recent) or patterns, create a plausible 1-minute time window for the signal. For example, if the current time is 19:21, the range could be '19:21:45 – 19:22:45'.
+      - **Duration:** This should always be '1 minute'.
+      - **Expected Target:** Set the target multiplier. This should generally be '10x+'.
+      - **Risk Level:** Assess the risk and provide a clear justification. The justification must be based on data from the image. For example: "Low (Based on pattern after Round 3872070 with 69.97x)" or "Medium (A high odd appeared recently, but a pattern is emerging)".
+
+  Your output must be a signal object that is clear, concise, and directly based on the data provided in the image.
 
   Use the following image for the analysis:
   Image: {{media url=photoDataUri}}`,
