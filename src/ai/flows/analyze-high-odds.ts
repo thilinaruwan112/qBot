@@ -26,7 +26,7 @@ const AnalyzeHighOddsOutputSchema = z.object({
     timeRange: z.string().describe("The time range for the signal, in HH:MM:SS – HH:MM:SS format, e.g., '19:21:45 – 19:22:45'. This must be a plausible FUTURE time based on the analysis."),
     duration: z.string().describe("The duration of the signal, e.g., '1 minute'."),
     expectedTarget: z.string().describe("The expected multiplier target, e.g., '10x+'."),
-    riskLevel: z.string().describe("The risk level and justification, e.g., 'Low (Based on pattern after Round 3872070 with 69.97x)'."),
+    riskLevel: z.string().describe("The risk level and justification. The justification MUST be based on specific data from the analysisDetails table. For example: 'Low (Based on pattern after Round 3872070 with 69.97x)'."),
 });
 export type AnalyzeHighOddsOutput = z.infer<typeof AnalyzeHighOddsOutputSchema>;
 
