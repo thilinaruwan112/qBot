@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AppHeader } from '@/components/dashboard/header';
 import DataInputCard from '@/components/dashboard/data-input-card';
 import SignalCard from '@/components/dashboard/signal-card';
+import AnalysisDetailsCard from '@/components/dashboard/analysis-details-card';
 
 type State = {
   message: string;
@@ -55,8 +56,9 @@ export default function HighOddAnalyzerPage() {
             errors={state.errors}
         />
         {state.analysisResult && (
-            <div className="flex justify-center">
+            <div className="grid md:grid-cols-2 gap-8">
                 <SignalCard analysisResult={state.analysisResult} />
+                <AnalysisDetailsCard analysisDetails={state.analysisResult.analysisDetails} />
             </div>
         )}
       </main>

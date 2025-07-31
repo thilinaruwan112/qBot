@@ -20,8 +20,9 @@ const AnalyzeHighOddsInputSchema = z.object({
 export type AnalyzeHighOddsInput = z.infer<typeof AnalyzeHighOddsInputSchema>;
 
 const AnalyzeHighOddsOutputSchema = z.object({
-    signalTime: z.string().describe("The time zone for the signal, e.g., 'Signal Time (Sri Lanka Time)'."),
-    timeRange: z.string().describe("The time range for the signal, e.g., '19:21:45 – 19:22:45'."),
+    analysisDetails: z.string().describe("The raw data extracted from the image, such as Round, Time, Odd, Seeds, and Hash. This should be a structured block of text."),
+    signalTime: z.string().describe("The time zone for the signal, e.g., 'Signal Time (Sri Lanka Time)'. This must be based on the time extracted from the image."),
+    timeRange: z.string().describe("The time range for the signal, e.g., '19:21:45 – 19:22:45'. This must be based on the time extracted from the image."),
     duration: z.string().describe("The duration of the signal, e.g., '1 minute'."),
     expectedTarget: z.string().describe("The expected multiplier target, e.g., '10x+'."),
     riskLevel: z.string().describe("The risk level and justification, e.g., 'Low (Based on pattern after Round 3872070 with 69.97x)'."),
@@ -40,11 +41,11 @@ const prompt = ai.definePrompt({
   output: {schema: AnalyzeHighOddsOutputSchema},
   prompt: `You are an expert in analyzing "Provably Fair" systems for games like Aviator. Your task is to analyze the provided screenshot to generate a strategic signal for a high-odd event.
 
-  1.  **Analyze Data:** Carefully analyze the data in the screenshot. This could be round history, 'Provably Fair' details (seeds, hashes), or other game data. Identify patterns or indicators that suggest a high-value multiplier might be imminent. Pay close attention to sequences of multipliers, time between high odds, and any data from the fair-play system.
+  1.  **Extract Data:** First, carefully extract all relevant data from the screenshot. This must include Round ID, Time, Odd Value, and any available seed/hash information. Populate this raw data in the 'analysisDetails' field.
 
-  2.  **Generate a Signal:** Based on your analysis, generate a signal with the following components.
-      - **Signal Time:** Determine the appropriate time zone. If not specified, use a generic placeholder like "Signal Time (Local)".
-      - **Time Range:** Based on the current time (assume the image is recent) or patterns, create a plausible 1-minute time window for the signal. For example, if the current time is 19:21, the range could be '19:21:45 – 19:22:45'.
+  2.  **Generate a Signal:** Based *strictly* on the data you just extracted, generate a signal.
+      - **Signal Time:** Determine the appropriate time zone from the image. If not specified, use a generic placeholder like "Signal Time (Local)".
+      - **Time Range:** Create a plausible 1-minute time window for the signal based *only* on the time you extracted from the image. For example, if the extracted time is 00:50:30, the range could be '00:50:45 – 00:51:45'. **DO NOT INVENT A TIME.**
       - **Duration:** This should always be '1 minute'.
       - **Expected Target:** Set the target multiplier. This should generally be '10x+'.
       - **Risk Level:** Assess the risk and provide a clear justification. The justification must be based on data from the image. For example: "Low (Based on pattern after Round 3872070 with 69.97x)" or "Medium (A high odd appeared recently, but a pattern is emerging)".
