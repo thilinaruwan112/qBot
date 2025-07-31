@@ -11,11 +11,12 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const AnalyzeHighOddsInputSchema = z.object({
-  photoDataUri: z
+  photoDataUris: z.array(z
     .string()
     .describe(
       "A screenshot of the 'Provably Fair' details for a game round, as a data URI. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
-    ),
+    )
+  ),
 });
 export type AnalyzeHighOddsInput = z.infer<typeof AnalyzeHighOddsInputSchema>;
 
@@ -53,7 +54,9 @@ const prompt = ai.definePrompt({
   Your output must be a signal object that is clear, concise, and provides an actionable, forward-looking alert based on the table analysis.
 
   Use the following image(s) for the analysis:
-  Image: {{media url=photoDataUri}}`,
+  {{#each photoDataUris}}
+  Image: {{media url=this}}
+  {{/each}}`,
 });
 
 const analyzeHighOddsFlow = ai.defineFlow(

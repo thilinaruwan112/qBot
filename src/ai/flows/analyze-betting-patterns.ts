@@ -11,11 +11,12 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const AnalyzeBettingPatternsInputSchema = z.object({
-  photoDataUri: z
+  photoDataUris: z.array(z
     .string()
     .describe(
       "A photo of the game data, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
-    ),
+    )
+  ),
 });
 export type AnalyzeBettingPatternsInput = z.infer<typeof AnalyzeBettingPatternsInputSchema>;
 
@@ -54,7 +55,7 @@ const prompt = ai.definePrompt({
   output: {schema: AnalyzeBettingPatternsOutputSchema},
   prompt: `You are an expert in analyzing Aviator game data to suggest betting strategies. Your goal is to analyze multiplier trends and provide clear, actionable suggestions based on statistical analysis and a balanced two-bet strategy.
 
-  First, extract the complete round history from the image. Do not limit the number of values. Put the full extracted text in the 'extractedData' field.
+  First, extract the complete round history from all of the images. Do not limit the number of values. Put the full extracted text in the 'extractedData' field.
 
   Next, perform the analysis using the following steps:
   1.  **Study Multiplier Trends:** Analyze the sequence of multipliers from the historical data. Note any emerging patterns, such as streaks of low multipliers (e.g., below 2.0x).
@@ -80,7 +81,9 @@ const prompt = ai.definePrompt({
   - **DO NOT INVENT RANDOM HIGH VALUES.** Your predictions must be a logical extension of your analysis. If the conditions for a high multiplier are not met, do not predict one.
 
   Use this image for the most recent data:
-  Image: {{media url=photoDataUri}}`,
+  {{#each photoDataUris}}
+  Image: {{media url=this}}
+  {{/each}}`,
 });
 
 const analyzeBettingPatternsFlow = ai.defineFlow(
