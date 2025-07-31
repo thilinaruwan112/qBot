@@ -9,6 +9,7 @@ import { AppHeader } from '@/components/dashboard/header';
 import DataInputCard from '@/components/dashboard/data-input-card';
 import SignalCard from '@/components/dashboard/signal-card';
 import AnalysisDetailsCard from '@/components/dashboard/analysis-details-card';
+import { Loader2 } from 'lucide-react';
 
 type State = {
   message: string;
@@ -23,9 +24,10 @@ const initialState: State = {
 };
 
 export default function HighOddAnalyzerPage() {
-  const [state, formAction] = useActionState(getHighOddAnalysis, initialState);
+  const [state, formAction, isPending] = useActionState(getHighOddAnalysis, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const [analysisResult, setAnalysisResult] = useState<AnalyzeHighOddsOutput | null>(null);
 
   useEffect(() => {
     if (state.message === 'Success' && state.analysisResult) {
@@ -33,6 +35,7 @@ export default function HighOddAnalyzerPage() {
         title: 'Analysis Complete',
         description: 'High odd signal generated successfully.',
       });
+      setAnalysisResult(state.analysisResult);
       if (formRef.current) {
         formRef.current.reset();
       }
@@ -54,11 +57,19 @@ export default function HighOddAnalyzerPage() {
             formRef={formRef}
             formAction={formAction}
             errors={state.errors}
+            isPending={isPending}
         />
-        {state.analysisResult && (
-            <div className="grid md:grid-cols-2 gap-8">
-                <SignalCard analysisResult={state.analysisResult} />
-                <AnalysisDetailsCard analysisDetails={state.analysisResult.analysisDetails} />
+
+        {isPending && (
+            <div className="flex items-center justify-center rounded-lg border border-dashed p-8">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+        )}
+
+        {analysisResult && !isPending && (
+            <div className="grid md:grid-cols-2 gap-8 items-start">
+                <SignalCard analysisResult={analysisResult} />
+                <AnalysisDetailsCard analysisDetails={analysisResult.analysisDetails} />
             </div>
         )}
       </main>

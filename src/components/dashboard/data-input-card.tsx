@@ -20,10 +20,12 @@ type DataInputCardProps = {
   formRef: React.RefObject<HTMLFormElement>;
   formAction: (payload: FormData) => void;
   errors: Record<string, string[]> | null | undefined;
+  isPending?: boolean;
 };
 
-function SubmitButton() {
-    const { pending } = useFormStatus();
+function SubmitButton({ isPending }: { isPending?: boolean }) {
+    const status = useFormStatus();
+    const pending = isPending ?? status.pending;
     return (
         <Button type="submit" disabled={pending}>
             {pending ? (
@@ -40,6 +42,7 @@ export default function DataInputCard({
   formRef,
   formAction,
   errors,
+  isPending,
 }: DataInputCardProps) {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [dataUris, setDataUris] = useState<string[]>([]);
@@ -47,7 +50,7 @@ export default function DataInputCard({
   const dropzoneRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  const handleFiles = (files: FileList | File[]) => {
+  const handleFiles = useCallback((files: FileList | File[]) => {
     const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
 
     if (imageFiles.length === 0) {
@@ -68,7 +71,7 @@ export default function DataInputCard({
         };
         reader.readAsDataURL(file);
     });
-  };
+  }, [toast]);
 
   const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -79,10 +82,14 @@ export default function DataInputCard({
   const handleRemoveImage = (index: number) => {
     setPreviewUrls(prev => prev.filter((_, i) => i !== index));
     setDataUris(prev => prev.filter((_, i) => i !== index));
-    if (fileInputRef.current) {
-        // This is tricky as we can't easily remove one file from the input's list
-        // Clearing it is the safest option. The user will have to re-select if they made a mistake.
-        fileInputRef.current.value = '';
+    
+    // We need to update the files in the input element
+    if (fileInputRef.current && fileInputRef.current.files) {
+        const dataTransfer = new DataTransfer();
+        const files = Array.from(fileInputRef.current.files);
+        files.splice(index, 1);
+        files.forEach(file => dataTransfer.items.add(file));
+        fileInputRef.current.files = dataTransfer.files;
     }
   }
   
@@ -94,7 +101,7 @@ export default function DataInputCard({
     }
   }
 
-  const handlePaste = async () => {
+  const handlePaste = useCallback(async () => {
     try {
         const clipboardItems = await navigator.clipboard.read();
         const imageBlobs: File[] = [];
@@ -122,7 +129,7 @@ export default function DataInputCard({
             variant: "destructive",
         });
     }
-  };
+  }, [handleFiles, toast]);
 
   useEffect(() => {
     const dropzone = dropzoneRef.current;
@@ -130,18 +137,27 @@ export default function DataInputCard({
         const handleDragOver = (e: DragEvent) => {
             e.preventDefault();
             e.stopPropagation();
+            dropzone.classList.add('border-primary', 'bg-accent');
         };
+        const handleDragLeave = (e: DragEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.remove('border-primary', 'bg-accent');
+        }
         const handleDrop = (e: DragEvent) => {
             e.preventDefault();
             e.stopPropagation();
+            dropzone.classList.remove('border-primary', 'bg-accent');
             if (e.dataTransfer?.files) {
                 handleFiles(e.dataTransfer.files);
             }
         };
         dropzone.addEventListener('dragover', handleDragOver);
+        dropzone.addEventListener('dragleave', handleDragLeave);
         dropzone.addEventListener('drop', handleDrop);
         return () => {
             dropzone.removeEventListener('dragover', handleDragOver);
+            dropzone.removeEventListener('dragleave', handleDragLeave);
             dropzone.removeEventListener('drop', handleDrop);
         }
     }
@@ -166,20 +182,19 @@ export default function DataInputCard({
           ))}
          
           {previewUrls.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {previewUrls.map((url, index) => (
-                <div key={index} className="relative">
+                <div key={index} className="relative aspect-video">
                     <Image
                         src={url}
                         alt={`Uploaded preview ${index + 1}`}
-                        width={200}
-                        height={120}
-                        className="rounded-md object-contain w-full h-full"
+                        fill
+                        className="rounded-md object-contain"
                     />
                     <Button 
                         variant="destructive" 
                         size="icon" 
-                        className="absolute top-1 right-1 h-6 w-6"
+                        className="absolute top-1 right-1 h-6 w-6 z-10"
                         onClick={() => handleRemoveImage(index)}
                         type="button"
                     >
@@ -195,7 +210,7 @@ export default function DataInputCard({
             >
               <label
                 htmlFor="file-upload"
-                className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-secondary"
+                className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-secondary transition-colors"
               >
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   <ImageIcon className="w-8 h-8 mb-4 text-muted-foreground" />
@@ -229,7 +244,7 @@ export default function DataInputCard({
         </CardContent>
         <CardFooter className="justify-between">
             <div className="flex gap-2">
-                <SubmitButton />
+                <SubmitButton isPending={isPending} />
                 {previewUrls.length > 0 && <Button type="button" variant="ghost" onClick={clearImages}>Clear</Button>}
             </div>
             <Button type="button" variant="outline" onClick={handlePaste}>

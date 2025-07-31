@@ -20,7 +20,7 @@ const AnalyzeHighOddsInputSchema = z.object({
 export type AnalyzeHighOddsInput = z.infer<typeof AnalyzeHighOddsInputSchema>;
 
 const AnalyzeHighOddsOutputSchema = z.object({
-    analysisDetails: z.string().describe("The raw data extracted from the image, such as Round, Time, Odd, Seeds, and Hash. This should be a structured block of text."),
+    analysisDetails: z.string().describe("The raw data extracted from the image, such as Round, Time, and Odd, presented in a structured markdown table. The table should have columns for Round, Time, and Odd Value."),
     signalTime: z.string().describe("The time zone for the signal, e.g., 'Signal Time (Sri Lanka Time)'. This must be based on the time extracted from the image."),
     timeRange: z.string().describe("The time range for the signal, e.g., '19:21:45 – 19:22:45'. This must be a plausible FUTURE time based on the analysis."),
     duration: z.string().describe("The duration of the signal, e.g., '1 minute'."),
@@ -39,20 +39,20 @@ const prompt = ai.definePrompt({
   name: 'analyzeHighOddsPrompt',
   input: {schema: AnalyzeHighOddsInputSchema},
   output: {schema: AnalyzeHighOddsOutputSchema},
-  prompt: `You are an expert in analyzing "Provably Fair" systems for games like Aviator. Your task is to analyze the provided screenshot to generate a strategic signal for a high-odd event in the near future.
+  prompt: `You are an expert in analyzing "Provably Fair" systems for games like Aviator. Your task is to analyze the provided screenshot(s) to generate a strategic signal for a high-odd event in the near future.
 
-  1.  **Extract Data:** First, carefully extract all relevant data from the screenshot. This must include Round ID, Time, Odd Value, and any available seed/hash information. Populate this raw data in the 'analysisDetails' field.
+  1.  **Extract and Tabulate Data:** First, carefully extract all relevant data from the screenshot(s). This must include Round ID, Time, and Odd Value. Organize this information into a structured markdown table in the 'analysisDetails' field. The table should have the columns: "Round", "Time", and "Odd Value".
 
-  2.  **Generate a Future Signal:** Based on your analysis of the data you just extracted, generate a signal for the **next high odd**.
+  2.  **Generate a Future Signal:** Based on your analysis of the data from the table you just created, generate a signal for the **next high odd**.
       - **Signal Time:** Determine the appropriate time zone from the image. If not specified, use a generic placeholder like "Signal Time (Local)".
-      - **Time Range:** Based on your analysis of recent high odds, create a plausible **future** 1-minute time window for the signal. For example, if your analysis suggests a high odd occurs every 5-10 minutes, and the last one was at 00:50:30, a valid future signal could be '00:55:00 – 00:56:00'. **DO NOT USE THE TIME FROM THE IMAGE, as it is in the past. Your signal must be for the future.**
+      - **Time Range:** Based on your analysis of recent high odds in the table, create a plausible **future** 1-minute time window for the signal. For example, if your analysis suggests a high odd occurs every 3-5 minutes, and the last one in the image was at 01:07:04, a valid future signal could be '01:10:00 – 01:11:00'. **DO NOT USE THE TIME FROM THE IMAGE, as it is in the past. Your signal must be for the future.**
       - **Duration:** This should always be '1 minute'.
       - **Expected Target:** Set the target multiplier. This should generally be '10x+'.
-      - **Risk Level:** Assess the risk and provide a clear justification. The justification must be based on data from the image. For example: "Low (A high odd of 69.97x just occurred in Round 3872070, and a pattern suggests another is due)."
+      - **Risk Level:** Assess the risk and provide a clear justification. The justification must be based on the patterns observed in the data table. For example: "Low (A high odd of 20.31x occurred at 01:04, followed by 10.25x at 01:07. A similar interval suggests another high odd is due)."
 
-  Your output must be a signal object that is clear, concise, and provides an actionable, forward-looking alert.
+  Your output must be a signal object that is clear, concise, and provides an actionable, forward-looking alert based on the table analysis.
 
-  Use the following image for the analysis:
+  Use the following image(s) for the analysis:
   Image: {{media url=photoDataUri}}`,
 });
 
