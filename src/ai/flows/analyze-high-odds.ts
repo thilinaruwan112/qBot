@@ -23,7 +23,7 @@ export type AnalyzeHighOddsInput = z.infer<typeof AnalyzeHighOddsInputSchema>;
 const AnalyzeHighOddsOutputSchema = z.object({
     analysisDetails: z.string().describe("The raw data extracted from the image, such as Round, Time, and Odd, presented in a structured markdown table. The table should have columns for Round, Time, and Odd Value."),
     signalTime: z.string().describe("The time zone for the signal, e.g., 'Signal Time (Sri Lanka Time)'. This must be based on the time extracted from the image."),
-    timeRange: z.string().describe("The time range for the signal, e.g., '19:21:45 – 19:22:45'. This must be a plausible FUTURE time based on the analysis."),
+    timeRange: z.string().describe("The time range for the signal, in HH:MM:SS – HH:MM:SS format, e.g., '19:21:45 – 19:22:45'. This must be a plausible FUTURE time based on the analysis."),
     duration: z.string().describe("The duration of the signal, e.g., '1 minute'."),
     expectedTarget: z.string().describe("The expected multiplier target, e.g., '10x+'."),
     riskLevel: z.string().describe("The risk level and justification, e.g., 'Low (Based on pattern after Round 3872070 with 69.97x)'."),
@@ -46,7 +46,7 @@ const prompt = ai.definePrompt({
 
   2.  **Generate a Future Signal:** Based on your analysis of the data from the table you just created, generate a signal for the **next high odd**.
       - **Signal Time:** The time zone for this signal must be 'Signal Time (Sri Lanka Time)'.
-      - **Time Range:** Based on your analysis of recent high odds in the table, create a plausible **future** 1-minute time window for the signal. For example, if your analysis suggests a high odd occurs every 3-5 minutes, and the last one in the image was at 01:07:04, a valid future signal could be '01:10:00 – 01:11:00'. **DO NOT USE THE TIME FROM THE IMAGE, as it is in the past. Your signal must be for a future time relative to when the user is asking.**
+      - **Time Range:** Based on your analysis of recent high odds in the table, create a plausible **future** 1-minute time window for the signal. For example, if your analysis suggests a high odd occurs every 3-5 minutes, and the last one in the image was at 01:07:04, a valid future signal could be '01:10:00 – 01:11:00'. The format must be exactly HH:MM:SS – HH:MM:SS. **DO NOT USE THE TIME FROM THE IMAGE, as it is in the past. Your signal must be for a future time relative to when the user is asking.**
       - **Duration:** This should always be '1 minute'.
       - **Expected Target:** Set the target multiplier. This should generally be '10x+'.
       - **Risk Level:** Assess the risk and provide a clear justification. The justification must be based on the patterns observed in the data table. For example: "Low (A high odd of 20.31x occurred at 01:04, followed by 10.25x at 01:07. A similar interval suggests another high odd is due)."
