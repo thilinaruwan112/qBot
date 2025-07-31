@@ -44,8 +44,8 @@ const prompt = ai.definePrompt({
   1.  **Extract and Tabulate Data:** First, carefully extract all relevant data from the screenshot(s). This must include Round ID, Time, and Odd Value. Organize this information into a structured markdown table in the 'analysisDetails' field. The table should have the columns: "Round", "Time", and "Odd Value".
 
   2.  **Generate a Future Signal:** Based on your analysis of the data from the table you just created, generate a signal for the **next high odd**.
-      - **Signal Time:** Determine the appropriate time zone from the image. If not specified, use a generic placeholder like "Signal Time (Local)".
-      - **Time Range:** Based on your analysis of recent high odds in the table, create a plausible **future** 1-minute time window for the signal. For example, if your analysis suggests a high odd occurs every 3-5 minutes, and the last one in the image was at 01:07:04, a valid future signal could be '01:10:00 – 01:11:00'. **DO NOT USE THE TIME FROM THE IMAGE, as it is in the past. Your signal must be for the future.**
+      - **Signal Time:** The time zone for this signal must be 'Signal Time (Sri Lanka Time)'.
+      - **Time Range:** Based on your analysis of recent high odds in the table, create a plausible **future** 1-minute time window for the signal. For example, if your analysis suggests a high odd occurs every 3-5 minutes, and the last one in the image was at 01:07:04, a valid future signal could be '01:10:00 – 01:11:00'. **DO NOT USE THE TIME FROM THE IMAGE, as it is in the past. Your signal must be for a future time relative to when the user is asking.**
       - **Duration:** This should always be '1 minute'.
       - **Expected Target:** Set the target multiplier. This should generally be '10x+'.
       - **Risk Level:** Assess the risk and provide a clear justification. The justification must be based on the patterns observed in the data table. For example: "Low (A high odd of 20.31x occurred at 01:04, followed by 10.25x at 01:07. A similar interval suggests another high odd is due)."
