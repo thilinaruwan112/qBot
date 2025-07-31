@@ -39,11 +39,8 @@ export async function getBettingAnalysis(
   }
 
   try {
-    // The flow currently supports only one image, so we pass the first one.
-    // However, the schema validation ensures at least one is present.
-    // If the flow were updated to handle multiple images, the array is ready.
     const result = await analyzeBettingPatterns({
-      photoDataUri: validatedFields.data.photoDataUri[0],
+      photoDataUris: validatedFields.data.photoDataUri,
     });
 
     return {
@@ -85,10 +82,8 @@ export async function getHighOddAnalysis(
     }
   
     try {
-      // The flow currently supports only one image, so we pass the first one.
-      // If the flow were updated to handle multiple images, the array is ready.
       const result = await analyzeHighOdds({
-        photoDataUri: validatedFields.data.photoDataUri[0],
+        photoDataUris: validatedFields.data.photoDataUri,
       });
   
       return {
