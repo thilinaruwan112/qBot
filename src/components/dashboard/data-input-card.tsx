@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Card,
   CardContent,
@@ -41,43 +41,54 @@ export default function DataInputCard({
   formAction,
   errors,
 }: DataInputCardProps) {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [dataUri, setDataUri] = useState<string>('');
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [dataUris, setDataUris] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropzoneRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  const handleFileChange = (file: File | null) => {
-    if (file) {
-      if (!file.type.startsWith('image/')) {
+  const handleFiles = (files: FileList | File[]) => {
+    const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+
+    if (imageFiles.length === 0) {
         toast({
-            title: "Invalid File Type",
-            description: "Please upload an image file (PNG, JPG, GIF).",
+            title: "No Valid Files",
+            description: "Please upload image files (PNG, JPG, GIF).",
             variant: "destructive",
         });
         return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        setPreviewUrl(result);
-        setDataUri(result);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setPreviewUrl(null);
-      setDataUri('');
     }
+
+    imageFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const result = reader.result as string;
+            setPreviewUrls(prev => [...prev, result]);
+            setDataUris(prev => [...prev, result]);
+        };
+        reader.readAsDataURL(file);
+    });
   };
 
   const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    handleFileChange(file || null);
+    if (event.target.files) {
+        handleFiles(event.target.files);
+    }
   }
 
-  const handleRemoveImage = () => {
-    setPreviewUrl(null);
-    setDataUri('');
+  const handleRemoveImage = (index: number) => {
+    setPreviewUrls(prev => prev.filter((_, i) => i !== index));
+    setDataUris(prev => prev.filter((_, i) => i !== index));
+    if (fileInputRef.current) {
+        // This is tricky as we can't easily remove one file from the input's list
+        // Clearing it is the safest option. The user will have to re-select if they made a mistake.
+        fileInputRef.current.value = '';
+    }
+  }
+  
+  const clearImages = () => {
+    setPreviewUrls([]);
+    setDataUris([]);
     if (fileInputRef.current) {
         fileInputRef.current.value = '';
     }
@@ -86,19 +97,23 @@ export default function DataInputCard({
   const handlePaste = async () => {
     try {
         const clipboardItems = await navigator.clipboard.read();
+        const imageBlobs: File[] = [];
         for (const item of clipboardItems) {
             const imageType = item.types.find(type => type.startsWith('image/'));
             if (imageType) {
                 const blob = await item.getType(imageType);
-                handleFileChange(new File([blob], "pasted-image.png", { type: imageType }));
-                return;
+                imageBlobs.push(new File([blob], "pasted-image.png", { type: imageType }));
             }
         }
-        toast({
-            title: "No Image Found",
-            description: "No image was found on your clipboard.",
-            variant: "destructive",
-        });
+        if (imageBlobs.length > 0) {
+            handleFiles(imageBlobs);
+        } else {
+             toast({
+                title: "No Image Found",
+                description: "No image was found on your clipboard.",
+                variant: "destructive",
+            });
+        }
     } catch(err) {
         console.error("Paste failed", err);
         toast({
@@ -109,6 +124,30 @@ export default function DataInputCard({
     }
   };
 
+  useEffect(() => {
+    const dropzone = dropzoneRef.current;
+    if (dropzone) {
+        const handleDragOver = (e: DragEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+        };
+        const handleDrop = (e: DragEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.dataTransfer?.files) {
+                handleFiles(e.dataTransfer.files);
+            }
+        };
+        dropzone.addEventListener('dragover', handleDragOver);
+        dropzone.addEventListener('drop', handleDrop);
+        return () => {
+            dropzone.removeEventListener('dragover', handleDragOver);
+            dropzone.removeEventListener('drop', handleDrop);
+        }
+    }
+  }, [handleFiles]);
+
+
   return (
     <Card>
       <form ref={formRef} action={formAction}>
@@ -118,34 +157,41 @@ export default function DataInputCard({
             <CardTitle>Upload Game Data</CardTitle>
           </div>
           <CardDescription>
-            Upload an image of your historical game data. You can also paste it from clipboard.
+            Upload one or more images of your historical game data. You can also paste them from your clipboard.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <input type="hidden" name="photoDataUri" value={dataUri} />
-          {previewUrl ? (
-            <div className="relative">
-              <Image
-                src={previewUrl}
-                alt="Uploaded preview"
-                width={500}
-                height={300}
-                className="rounded-md object-contain"
-              />
-              <Button 
-                variant="destructive" 
-                size="icon" 
-                className="absolute top-2 right-2 h-6 w-6"
-                onClick={handleRemoveImage}
-                >
-                  <X className="h-4 w-4" />
-              </Button>
+          {dataUris.map((uri, index) => (
+             <input type="hidden" name="photoDataUri" value={uri} key={index} />
+          ))}
+         
+          {previewUrls.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {previewUrls.map((url, index) => (
+                <div key={index} className="relative">
+                    <Image
+                        src={url}
+                        alt={`Uploaded preview ${index + 1}`}
+                        width={200}
+                        height={120}
+                        className="rounded-md object-contain w-full h-full"
+                    />
+                    <Button 
+                        variant="destructive" 
+                        size="icon" 
+                        className="absolute top-1 right-1 h-6 w-6"
+                        onClick={() => handleRemoveImage(index)}
+                        type="button"
+                    >
+                        <X className="h-4 w-4" />
+                    </Button>
+                </div>
+              ))}
             </div>
           ) : (
             <div
               ref={dropzoneRef}
               className="flex items-center justify-center w-full"
-              onClick={() => fileInputRef.current?.click()}
             >
               <label
                 htmlFor="file-upload"
@@ -158,7 +204,7 @@ export default function DataInputCard({
                     and drop
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    PNG, JPG or GIF
+                    PNG, JPG or GIF (multiple allowed)
                   </p>
                 </div>
                 <Input
@@ -166,6 +212,7 @@ export default function DataInputCard({
                   ref={fileInputRef}
                   name="file-upload"
                   type="file"
+                  multiple
                   className="hidden"
                   accept="image/png, image/jpeg, image/gif"
                   onChange={handleFileInputChange}
@@ -181,7 +228,10 @@ export default function DataInputCard({
           )}
         </CardContent>
         <CardFooter className="justify-between">
-            <SubmitButton />
+            <div className="flex gap-2">
+                <SubmitButton />
+                {previewUrls.length > 0 && <Button type="button" variant="ghost" onClick={clearImages}>Clear</Button>}
+            </div>
             <Button type="button" variant="outline" onClick={handlePaste}>
                 <ClipboardPaste className="mr-2 h-4 w-4" />
                 Paste Image
